@@ -21,6 +21,7 @@
 ********************************************************************************************/
 
 #include "raylib-cpp.hpp"
+#include "Pathfinder.h"
 
 int main() {
     // Initialization
@@ -29,6 +30,25 @@ int main() {
     int screenHeight = 450;
     raylib::Color textColor = raylib::Color::LightGray();
     raylib::Window window(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+    //TEST
+    //-------------------------------------------
+    Node test(1, 1);
+    std::vector<Edge> edges;
+    edges.push_back(Edge(&test, 1));
+    //-------------------------------------------
+
+    NodeMap map;
+    std::vector<std::string> asciiMap;
+    asciiMap.push_back("000000000000");
+    asciiMap.push_back("010111011100");
+    asciiMap.push_back("010101110110");
+    asciiMap.push_back("010100000000");
+    asciiMap.push_back("010111111110");
+    asciiMap.push_back("010000001000");
+    asciiMap.push_back("011111111110");
+    asciiMap.push_back("000000000000");
+    map.Initialise(asciiMap, 10);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -45,7 +65,7 @@ int main() {
         BeginDrawing();
         {
             window.ClearBackground(RAYWHITE);
-            textColor.DrawText("Congrats! You created your first window!", 190, 200, 20);
+            map.Draw();
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
