@@ -39,16 +39,20 @@ int main() {
     //-------------------------------------------
 
     NodeMap map;
-    std::vector<std::string> asciiMap;
-    asciiMap.push_back("000000000000");
-    asciiMap.push_back("010111011100");
-    asciiMap.push_back("010101110110");
-    asciiMap.push_back("010100000000");
-    asciiMap.push_back("010111111110");
-    asciiMap.push_back("010000001000");
-    asciiMap.push_back("011111111110");
-    asciiMap.push_back("000000000000");
-    map.Initialise(asciiMap, 10);
+    /*std::vector<std::string> asciiMap;
+    asciiMap.push_back("11111111111111");
+    asciiMap.push_back("10000000000001");
+    asciiMap.push_back("10101110111001");
+    asciiMap.push_back("10101011101101");
+    asciiMap.push_back("10101000000001");
+    asciiMap.push_back("10101111111101");
+    asciiMap.push_back("10100000010001");
+    asciiMap.push_back("10111111111101");
+    asciiMap.push_back("10000000000001");
+    asciiMap.push_back("11111111111111");
+    map.Initialise(asciiMap, 40);*/
+
+    map.Initialise("map2.txt", 30);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------

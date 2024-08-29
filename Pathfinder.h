@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <glm/glm.hpp> // Using glm for its vectors (specifically vec2)
-//#include <fstream> // For reading maps from a text file
 #include <iostream>
 
 struct Node;
@@ -19,6 +18,11 @@ struct Edge
 	}
 	Edge(Node* target, float cost)
 		: m_target(target), m_cost(cost) {}
+	Edge(const Edge &other)
+	{
+		m_target = other.m_target;
+		m_cost = other.m_cost;
+	}
 };
 
 struct Node
@@ -32,28 +36,24 @@ struct Node
 	}
 	Node(glm::vec2 pos)
 		: m_position(pos) {}
+	Node(const Node &other)
+	{
+		m_position = other.m_position;
+	}
+	~Node()
+	{
+		m_connections.clear();
+	}
 
 	void ConnectTo(Node* other, float cost)
 	{
-		std::cout << "Connecting nodes" << std::endl;
-
 		if (other == nullptr)
 		{
 			std::cout << "UH OH" << std::endl;
 			return;
 		}
 
-		std::cout << other << std::endl;
-		std::cout << cost << std::endl;
-
 		m_connections.push_back(Edge(other, cost));
-
-		//Edge myEdge(other, cost);
-		//m_connections.push_back(myEdge);
-
-		//m_connections.emplace_back(other, cost);
-
-		std::cout << "Nodes connected" << std::endl;
 	}
 };
 
@@ -64,9 +64,11 @@ class NodeMap
 
 	Node** m_nodes;
 
+	const char m_emptyTile = '0'; // Character that represents an empty tile
+
 public:
 	void Initialise(std::vector<std::string> asciiMap, float tileSize); // Creates a Node map from a vector of strings
-	//void Inititalise(std::ifstream map); // Creates a Node map from a text file
+	void Initialise(std::string fileName, float tileSize); // Creates a Node map from a text file
 
 	Node* GetNode(int x, int y);
 
