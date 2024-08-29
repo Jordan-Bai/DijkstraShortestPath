@@ -82,5 +82,7 @@ public:
 
 	void Draw();
 
-	std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
+	//std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
 };
+
+std::vector<Node*> PathSearch(Node* startNode, Node* endNode);

@@ -22,6 +22,7 @@
 
 #include "raylib-cpp.hpp"
 #include "Pathfinder.h"
+#include "PathAgent.h"
 
 int main() {
     // Initialization
@@ -30,13 +31,6 @@ int main() {
     int screenHeight = 450;
     raylib::Color textColor = raylib::Color::LightGray();
     raylib::Window window(screenWidth, screenHeight, "raylib [core] example - basic window");
-
-    //TEST
-    //-------------------------------------------
-    Node test(1, 1);
-    std::vector<Edge> edges;
-    edges.push_back(Edge(&test, 1));
-    //-------------------------------------------
 
     NodeMap map;
     /*std::vector<std::string> asciiMap;
@@ -52,9 +46,10 @@ int main() {
     asciiMap.push_back("11111111111111");
     map.Initialise(asciiMap, 40);*/
 
-    map.Initialise("map2.txt", 30);
+    map.Initialise("map3.txt", 30);
 
-    std::vector<Node*> nodePath = map.PathSearch(map.GetNode(1, 1), map.GetNode(6, 7));
+    //std::vector<Node*> nodePath = PathSearch(map.GetNode(1, 1), map.GetNode(6, 7));
+    PathAgent agent(map.GetNode(1, 1), 50); 
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -66,12 +61,15 @@ int main() {
         if (IsMouseButtonPressed(0))
         {
             Vector2 mousePos = GetMousePosition();
-            Node* start = map.GetNearestNode(mousePos.x, mousePos.y);
-            if (start != nullptr)
+            Node* target = map.GetNearestNode(mousePos.x, mousePos.y);
+            if (target != nullptr)
             {
-                nodePath = map.PathSearch(start, map.GetNode(6, 7));
+                //nodePath = PathSearch(target, map.GetNode(6, 7));
+                agent.GoToNode(target);
             }
         }
+
+        agent.Update(GetFrameTime()); // Get frame time returns deltaTime
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -82,12 +80,13 @@ int main() {
             map.Draw();
 
             // Draw node path
-            for (int i = 0; i < nodePath.size() - 1; i++)
-            {
-                DrawLine(nodePath[i]->m_position.x, nodePath[i]->m_position.y, // Node i's position
-                    nodePath[i+1]->m_position.x, nodePath[i+1]->m_position.y, // Node i+1's position
-                    raylib::Color::Black());
-            }
+            //for (int i = 0; i < nodePath.size() - 1; i++)
+            //{
+            //    DrawLine(nodePath[i]->m_position.x, nodePath[i]->m_position.y, // Node i's position
+            //        nodePath[i+1]->m_position.x, nodePath[i+1]->m_position.y, // Node i+1's position
+            //        raylib::Color::Black());
+            //}
+            agent.Draw();
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
