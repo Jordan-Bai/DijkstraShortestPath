@@ -54,6 +54,8 @@ int main() {
 
     map.Initialise("map2.txt", 30);
 
+    std::vector<Node*> nodePath = map.PathSearch(map.GetNode(1, 1), map.GetNode(6, 7));
+
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
 
@@ -61,7 +63,15 @@ int main() {
     while (!window.ShouldClose()) {   // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        // Update your variables here
+        if (IsMouseButtonPressed(0))
+        {
+            Vector2 mousePos = GetMousePosition();
+            Node* start = map.GetNearestNode(mousePos.x, mousePos.y);
+            if (start != nullptr)
+            {
+                nodePath = map.PathSearch(start, map.GetNode(6, 7));
+            }
+        }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -70,6 +80,14 @@ int main() {
         {
             window.ClearBackground(RAYWHITE);
             map.Draw();
+
+            // Draw node path
+            for (int i = 0; i < nodePath.size() - 1; i++)
+            {
+                DrawLine(nodePath[i]->m_position.x, nodePath[i]->m_position.y, // Node i's position
+                    nodePath[i+1]->m_position.x, nodePath[i+1]->m_position.y, // Node i+1's position
+                    raylib::Color::Black());
+            }
         }
         EndDrawing();
         //----------------------------------------------------------------------------------

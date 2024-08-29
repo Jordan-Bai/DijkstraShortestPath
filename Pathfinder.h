@@ -30,6 +30,13 @@ struct Node
 	glm::vec2 m_position;
 	std::vector<Edge> m_connections; // List of paths to other nodes
 
+	// FOR TESTING ONLY:
+	int m_x, m_y;
+
+	// Used for search:
+	float m_gScore; // Represents the cost of the path travelled to get here
+	Node* m_previousNode;
+
 	Node(float x, float y)
 	{
 		m_position = { x, y };
@@ -71,6 +78,9 @@ public:
 	void Initialise(std::string fileName, float tileSize); // Creates a Node map from a text file
 
 	Node* GetNode(int x, int y);
+	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
 
 	void Draw();
+
+	std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
 };

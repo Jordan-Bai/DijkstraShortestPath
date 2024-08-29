@@ -3,6 +3,7 @@
 #include <iostream>
 #include <raylib.h>
 #include <fstream> // For reading maps from a text file
+#include <algorithm> // For std::find
 
 #include "Pathfinder.h"
 
@@ -41,6 +42,8 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, float tileSize)
 			if (tile == m_emptyTile) // If the tile is empty, it can be pathed through, so add a node there
 			{
 				m_nodes[x + (y * m_width)] = new Node((x + 0.5f) * m_tileSize, (y + 0.5f) * m_tileSize); // Create a new node at that location
+				m_nodes[x + (y * m_width)]->m_x = x;
+				m_nodes[x + (y * m_width)]->m_y = y;
 			}
 			else
 			{
@@ -107,6 +110,90 @@ Node* NodeMap::GetNode(int x, int y)
 	return m_nodes[x + (y * m_width)];
 }
 
+Node* NodeMap::GetNearestNode(int x, int y)
+{
+	int xCell = x / m_tileSize;
+	int yCell = y / m_tileSize;
+	return GetNode(xCell, yCell);
+}
+
+std::vector<Node*> NodeMap::PathSearch(Node* startNode, Node* endNode)
+{
+	if (startNode == nullptr || endNode == nullptr)
+	{
+		std::cout << "Invalid path search" << std::endl;
+		return {}; // Return an empty vector
+	}
+	if (startNode == endNode)
+	{
+		return {}; // Return an empty vector (CHECK AFTER FINISHING FUNCTION)
+	}
+
+	// Reset the start and end nodes, so they won't retain info from previous searches
+	startNode->m_gScore = 0;
+	startNode->m_previousNode = nullptr;
+	endNode->m_previousNode = nullptr;
+
+	std::vector<Node*> openList; // List of nodes to be expanded
+	std::vector<Node*> closedList; // List of nodes that have already been passed
+
+	openList.push_back(startNode);
+
+	while (!openList.empty()) // While the openList isn't empty
+	{
+		// Sort list by gscore (only necessary if edge cost isn't always the same)
+
+		Node* currentNode = openList.front(); // Get the node at the front of the list
+		if (currentNode == endNode) // If we've reached the node we're looking for, we can end the loop
+		{
+			break;
+		}
+
+		openList.erase(openList.begin()); // Remove the current node (the one at the front) from the open list
+		closedList.push_back(currentNode); // Add current node to closed list
+
+		// For each of the node's connections:
+		for (int i = 0; i < currentNode->m_connections.size(); i++)
+		{
+			Node* targetNode = currentNode->m_connections[i].m_target;
+			if (std::find(closedList.begin(), closedList.end(), targetNode) == closedList.end()) // Check that the target is not in the closed list
+			{
+				float gScore = currentNode->m_gScore + currentNode->m_connections[i].m_cost;
+				// ^ gScore is the current node's gScore + the cost to travel to the target node
+
+				if (std::find(openList.begin(), openList.end(), targetNode) == openList.end()) // If the target isn't in the open list already
+				{
+					targetNode->m_gScore = gScore;
+					targetNode->m_previousNode = currentNode;
+					openList.push_back(targetNode);
+				}
+				else if (gScore < targetNode->m_gScore) // If the node IS in the open list already, only change its info if this node's path is faster
+				{
+					targetNode->m_gScore = gScore;
+					targetNode->m_previousNode = currentNode;
+				}
+			}
+		}
+	}
+
+	if (endNode == nullptr) // If a path to the end was not found
+	{
+		std::cout << "No path found" << std::endl;
+		return {}; // Return an empty vector (CHECK AFTER FINISHING FUNCTION)
+	}
+
+	std::vector<Node*> finalPath;
+	Node* currentNode = endNode;
+
+	while (currentNode != nullptr)
+	{
+		finalPath.push_back(currentNode);
+		currentNode = currentNode->m_previousNode; // Follow the previous nodes to the start of the path
+	}
+
+	return finalPath;
+}
+
 void NodeMap::Draw()
 {
 	for (int y = 0; y < m_height; y++) // For each line in the map (aka each y value)
@@ -125,7 +212,7 @@ void NodeMap::Draw()
 					Node* neighbour = node->m_connections[i].m_target;
 					DrawLine(node->m_position.x, node->m_position.y,				// This node's position (start of the line)
 						neighbour->m_position.x, neighbour->m_position.y,			// Neighbour's position (end of the line)
-						raylib::Color::Red());
+						raylib::Color::Green());
 				}
 			}
 		}
