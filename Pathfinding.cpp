@@ -7,13 +7,16 @@
 
 #include "Pathfinder.h"
 
-void NodeMap::Initialise(std::vector<std::string> asciiMap, float tileSize)
+void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize)
 {
-	std::cout << "Initialising map" << std::endl;
+	std::cout << "Initialising map (TEST)" << std::endl;
 
 	m_height = asciiMap.size(); // The number of strings in the vector, aka the number of lines
 	m_width = asciiMap[0].size(); // The number of characters in this string (assuming it's the same for each line)
-	m_tileSize = tileSize; // The size of each tile
+
+	float yMax = screenSize.y / m_height;
+	float xMax = screenSize.x / m_width;
+	m_tileSize = yMax < xMax ? yMax : xMax; // Set whichever is smaller as the tile size
 
 	m_nodes = new Node * [m_width * m_height]; // Create a node pointer for each tile in the map
 
@@ -34,19 +37,31 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, float tileSize)
 			{
 				tile = line[x];
 			}
-			else // If the character DOESN'T exist, just put an empty space there
+			else // If the character DOESN'T exist, just put a 1 cost space there
 			{
-				tile = m_emptyTile;
+				tile = '1';
 			}
 
-			if (tile == m_emptyTile) // If the tile is empty, it can be pathed through, so add a node there
+			if (tile != m_wallTile) // If the tile isn't a wall, it can be pathed through, so add a node there
 			{
 				m_nodes[x + (y * m_width)] = new Node((x + 0.5f) * m_tileSize, (y + 0.5f) * m_tileSize); // Create a new node at that location
-				m_nodes[x + (y * m_width)]->m_x = x;
-				m_nodes[x + (y * m_width)]->m_y = y;
+
+				int tileCost = tile - '0'; // By subtracting the character for 0, we can convert the ascii value of a number to what number it is
+				if (tileCost > 0 && tileCost < 10) // Means character was a valid number
+				{
+					m_nodes[x + (y * m_width)]->m_tileCost = tileCost;
+				}
+				else // If it's not a recognized character, just put a 1 cost space there
+				{
+					m_nodes[x + (y * m_width)]->m_tileCost = 1; 
+				}
+
+				// FOR TESTING
+				//-----------------------------------------------------------------------------------------------------
 				char letter = 65 + x; // Corresponds to letters on the ascii table
 				std::string id = letter + std::to_string(y);
 				m_nodes[x + (y * m_width)]->m_id = id;
+				//-----------------------------------------------------------------------------------------------------
 			}
 			else
 			{
@@ -66,56 +81,24 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, float tileSize)
 				Node* nodeWest = GetNode(x - 1, y);
 				if (nodeWest != nullptr)
 				{
-					// FOR TESTING
-					//-----------------------------------------------------------------------------------------------------
-					if (x > 1 && x < 3 && y > 1 && y < 7)
-					{
-						currentNode->ConnectTo(nodeWest, 5);
-						nodeWest->ConnectTo(currentNode, 5);
-					}
-					else if (x == 9 && y == 8)
-					{
-						currentNode->ConnectTo(nodeWest, 3);
-						nodeWest->ConnectTo(currentNode, 3);
-					}
-					//-----------------------------------------------------------------------------------------------------
-					else
-					{
-						// Create connections running both ways
-						currentNode->ConnectTo(nodeWest, 1);
-						nodeWest->ConnectTo(currentNode, 1);
-					}
+					// Create connections running both ways
+					currentNode->ConnectTo(nodeWest, currentNode->m_tileCost);
+					nodeWest->ConnectTo(currentNode, nodeWest->m_tileCost);
 				}
 
 				Node* nodeNorth = GetNode(x, y - 1);
 				if (nodeNorth != nullptr)
 				{
-					// FOR TESTING
-					//-----------------------------------------------------------------------------------------------------
-					if (x > 0 && x < 3 && y > 2 && y < 7)
-					{
-						currentNode->ConnectTo(nodeNorth, 5);
-						nodeNorth->ConnectTo(currentNode, 5);
-					}
-					else if (x > 7 && x < 10 && y > 7 && y < 10)
-					{
-						currentNode->ConnectTo(nodeNorth, 3);
-						nodeNorth->ConnectTo(currentNode, 3);
-					}
-					//-----------------------------------------------------------------------------------------------------
-					else
-					{
-						// Create connections running both ways
-						currentNode->ConnectTo(nodeNorth, 1);
-						nodeNorth->ConnectTo(currentNode, 1);
-					}
+					// Create connections running both ways
+					currentNode->ConnectTo(nodeNorth, currentNode->m_tileCost);
+					nodeNorth->ConnectTo(currentNode, nodeNorth->m_tileCost);
 				}
 			}
 		}
 	}
 }
 
-void NodeMap::Initialise(std::string fileName, float tileSize)
+void NodeMap::Initialise(std::string fileName, glm::vec2 screenSize)
 {
 	std::ifstream ifs(fileName, std::ifstream::in);
 	if (!ifs) // Check if a file was loaded
@@ -132,7 +115,7 @@ void NodeMap::Initialise(std::string fileName, float tileSize)
 		fileMap.push_back(line);
 	}
 
-	Initialise(fileMap, tileSize); // Have to use the vector version so we can figure out the map height before iterating through it,
+	Initialise(fileMap, screenSize); // Have to use the vector version so we can figure out the map height before iterating through it,
 	// since we need to actually create m_nodes
 }
 
@@ -181,8 +164,11 @@ void NodeMap::Draw()
 						lineColor = raylib::Color::Red();
 					}
 					Node* neighbour = node->m_connections[i].m_target;
+					glm::vec2 distance = neighbour->m_position - node->m_position;
+					glm::vec2 midPoint = node->m_position + (distance * 0.5f);
+
 					DrawLine(node->m_position.x, node->m_position.y,				// This node's position (start of the line)
-						neighbour->m_position.x, neighbour->m_position.y,			// Neighbour's position (end of the line)
+						midPoint.x, midPoint.y,			// Neighbour's position (end of the line)
 						lineColor);
 				}
 
@@ -236,16 +222,6 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 
 		closedList.push_back(currentNode); // Add current node to closed list
 
-		// FOR TESTING
-		//-----------------------------------------------------------------------------------------------------
-		//std::cout << "Current node: " << currentNode->m_gScore << "(" << currentNode->m_id << ")" << std::endl << "Open list1: ";
-		//for (int i = 0; i < openList.size(); i++)
-		//{
-		//	std::cout << openList[i]->m_gScore << "(" << openList[i]->m_id << ") ";
-		//}
-		//std::cout << std::endl;
-		//-----------------------------------------------------------------------------------------------------
-
 		// For each of the node's connections:
 		for (int i = 0; i < currentNode->m_connections.size(); i++)
 		{
@@ -280,16 +256,6 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 				}
 			}
 		}
-
-		// FOR TESTING
-		//-----------------------------------------------------------------------------------------------------
-		//std::cout << "Open list2: ";
-		//for (int i = 0; i < openList.size(); i++)
-		//{
-		//	std::cout << openList[i]->m_gScore << "(" << openList[i]->m_id << ") ";
-		//}
-		//std::cout << std::endl << std::endl;
-		//-----------------------------------------------------------------------------------------------------
 	}
 
 	if (endNode == nullptr) // If a path to the end was not found

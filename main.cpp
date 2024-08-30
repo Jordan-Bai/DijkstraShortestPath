@@ -33,23 +33,9 @@ int main() {
     raylib::Window window(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     NodeMap map;
-    /*std::vector<std::string> asciiMap;
-    asciiMap.push_back("11111111111111");
-    asciiMap.push_back("10000000000001");
-    asciiMap.push_back("10101110111001");
-    asciiMap.push_back("10101011101101");
-    asciiMap.push_back("10101000000001");
-    asciiMap.push_back("10101111111101");
-    asciiMap.push_back("10100000010001");
-    asciiMap.push_back("10111111111101");
-    asciiMap.push_back("10000000000001");
-    asciiMap.push_back("11111111111111");
-    map.Initialise(asciiMap, 40);*/
+    map.Initialise("map2.txt", glm::vec2(screenWidth, screenHeight));
 
-    map.Initialise("map3.txt", 30);
-
-    //std::vector<Node*> nodePath = PathSearch(map.GetNode(1, 1), map.GetNode(6, 7));
-    PathAgent agent(map.GetNode(1, 1), 30); 
+    PathAgent agent(map.GetNode(1, 1), 40); 
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -64,7 +50,6 @@ int main() {
             Node* target = map.GetNearestNode(mousePos.x, mousePos.y);
             if (target != nullptr)
             {
-                //nodePath = PathSearch(target, map.GetNode(6, 7));
                 agent.GoToNode(target);
             }
         }

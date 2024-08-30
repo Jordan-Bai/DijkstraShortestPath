@@ -46,26 +46,66 @@ void PathAgent::Update(float deltaTime)
 
 	Node* targetNode = m_path[m_currentIndex + 1];
 	glm::vec2 direction = targetNode->m_position - m_position;
-	float distance = glm::length(direction);
+	float distance = glm::length(direction) - m_speed * deltaTime; // Accounts for overshooting the node
 
-	if (distance > 1)
+	if (distance > 0)
 	{
 		// Move the agent
 		glm::vec2 vel = glm::normalize(direction) * m_speed * deltaTime;
 		m_position += vel;
 	}
-	else // If the agent is in range of the target node, go to the next one
+	else // Means we've passed the next node
 	{
-		if (m_currentIndex < m_path.size() - 2) // If the agent isn't at the final node, go to the next index
+		bool onPath = true;
+		while (onPath)
 		{
-			m_currentIndex++;
-			m_currentNode = m_path[m_currentIndex];
+			if (m_currentIndex < m_path.size() - 2) // If the agent isn't at the final node, go to the next index
+			{
+				m_currentIndex++;
+				m_currentNode = m_path[m_currentIndex];
+
+				// Check if the direction we've overshot the node in is the direction we should be going (on the path)
+				Node* nextNode = m_path[m_currentIndex + 1];
+				glm::vec2 nextDirection = nextNode->m_position - m_position;
+
+				// If the next target is in the same direction as the current target, we're still on the path
+				if (glm::normalize(nextDirection) == glm::normalize(direction))
+				{
+					float nextDistance = glm::length(nextDirection) - m_speed * deltaTime;
+					if (nextDistance > 0) // Means we won't pass the next node this frame
+					{
+						glm::vec2 vel = glm::normalize(nextDirection) * m_speed * deltaTime;
+						m_position += vel;
+						onPath = false; // EXIT LOOP
+					}
+					// If nextDistance < 0, means we're going to overshoot the NEXT node as well, so continue the loop
+				}
+				else // Otherwise, that means our next position will NOT be on the path
+				{
+					onPath = false; // EXIT LOOP
+					m_position = m_currentNode->m_position; // Set them to their last node, so they go back on the path
+				}
+			}
+			else // If they ARE at the end, finish the path
+			{
+				m_currentNode = m_path[m_currentIndex + 1];
+				m_path.clear();
+				m_position = m_currentNode->m_position;
+				onPath = false; // EXIT LOOP
+			}
 		}
-		else // If they ARE at the end, finish the path
-		{
-			m_currentNode = m_path[m_currentIndex + 1];
-			m_path.clear();
-		}
+
+		//m_position = targetNode->m_position; // If the agent is within range, set their position to the node, to prevent issues with extreme speed
+		//if (m_currentIndex < m_path.size() - 2) // If the agent isn't at the final node, go to the next index
+		//{
+		//	m_currentIndex++;
+		//	m_currentNode = m_path[m_currentIndex];
+		//}
+		//else // If they ARE at the end, finish the path
+		//{
+		//	m_currentNode = m_path[m_currentIndex + 1];
+		//	m_path.clear();
+		//}
 	}
 }
 

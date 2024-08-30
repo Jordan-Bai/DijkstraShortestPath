@@ -31,8 +31,9 @@ struct Node
 	std::vector<Edge> m_connections; // List of paths to other nodes
 
 	// FOR TESTING ONLY:
-	int m_x, m_y;
 	std::string m_id;
+
+	int m_tileCost;
 
 	// Used for search:
 	float m_gScore; // Represents the cost of the path travelled to get here
@@ -85,11 +86,11 @@ class NodeMap
 
 	Node** m_nodes;
 
-	const char m_emptyTile = '0'; // Character that represents an empty tile
+	const char m_wallTile = '#'; // Character that represents a wall tile
 
 public:
-	void Initialise(std::vector<std::string> asciiMap, float tileSize); // Creates a Node map from a vector of strings
-	void Initialise(std::string fileName, float tileSize); // Creates a Node map from a text file
+	void Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize); // Creates a Node map from a vector of strings
+	void Initialise(std::string fileName, glm::vec2 screenSize); // Creates a Node map from a text file
 
 	Node* GetNode(int x, int y);
 	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
