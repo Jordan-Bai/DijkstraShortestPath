@@ -25,6 +25,16 @@ void PathAgent::SetCurrentNode(Node* node)
 	m_position = node->m_position;
 }
 
+void PathAgent::SpeedUp()
+{
+	m_speed *= 2;
+}
+
+void PathAgent::SlowDown()
+{
+	m_speed *= 0.5f;
+}
+
 void PathAgent::Update(float deltaTime)
 {
 	if (m_path.empty())
@@ -72,6 +82,13 @@ void PathAgent::Draw()
 			DrawLine(m_path[i]->m_position.x, m_path[i]->m_position.y, // Node i's position
 				m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y, // Node i+1's position
 				raylib::Color::Black());
+
+			// For testing
+				//-----------------------------------------------------------------------------------------------------
+			raylib::Color textColor = raylib::Color::Black();
+			std::string text = std::to_string(int(m_path[i + 1]->m_gScore));
+			textColor.DrawText(text, m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y - 10, 10);
+			//-----------------------------------------------------------------------------------------------------
 		}
 	}
 }

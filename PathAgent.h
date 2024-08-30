@@ -19,6 +19,9 @@ public:
 	void GoToNode(Node* node);
 	void SetCurrentNode(Node* node);
 
+	void SpeedUp();
+	void SlowDown();
+
 	void Update(float deltaTime);
 	void Draw();
 };

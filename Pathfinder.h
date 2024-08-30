@@ -32,6 +32,7 @@ struct Node
 
 	// FOR TESTING ONLY:
 	int m_x, m_y;
+	std::string m_id;
 
 	// Used for search:
 	float m_gScore; // Represents the cost of the path travelled to get here
@@ -43,7 +44,7 @@ struct Node
 	}
 	Node(glm::vec2 pos)
 		: m_position(pos) {}
-	Node(const Node &other)
+	Node(const Node& other)
 	{
 		m_position = other.m_position;
 	}
@@ -61,6 +62,19 @@ struct Node
 		}
 
 		m_connections.push_back(Edge(other, cost));
+	}
+
+	bool operator<(Node& other)
+	{
+		return m_gScore < other.m_gScore;
+	}
+	bool operator>(Node& other)
+	{
+		return m_gScore > other.m_gScore;
+	}
+	bool operator==(Node& other)
+	{
+		return m_gScore == other.m_gScore;
 	}
 };
 
@@ -81,8 +95,11 @@ public:
 	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
 
 	void Draw();
-
-	//std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
 };
 
 std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
+
+inline bool greaterComp(const Node* node1, const Node* node2) // Need to use this as the comparison because otherwise we couldn't compare pointers
+{
+	return node1->m_gScore > node2->m_gScore;
+}

@@ -49,7 +49,7 @@ int main() {
     map.Initialise("map3.txt", 30);
 
     //std::vector<Node*> nodePath = PathSearch(map.GetNode(1, 1), map.GetNode(6, 7));
-    PathAgent agent(map.GetNode(1, 1), 50); 
+    PathAgent agent(map.GetNode(1, 1), 30); 
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -68,6 +68,14 @@ int main() {
                 agent.GoToNode(target);
             }
         }
+        if (IsKeyPressed(KEY_W))
+        {
+            agent.SpeedUp();
+        }
+        if (IsKeyPressed(KEY_S))
+        {
+            agent.SlowDown();
+        }
 
         agent.Update(GetFrameTime()); // Get frame time returns deltaTime
         //----------------------------------------------------------------------------------
@@ -77,16 +85,9 @@ int main() {
         BeginDrawing();
         {
             window.ClearBackground(RAYWHITE);
-            map.Draw();
 
-            // Draw node path
-            //for (int i = 0; i < nodePath.size() - 1; i++)
-            //{
-            //    DrawLine(nodePath[i]->m_position.x, nodePath[i]->m_position.y, // Node i's position
-            //        nodePath[i+1]->m_position.x, nodePath[i+1]->m_position.y, // Node i+1's position
-            //        raylib::Color::Black());
-            //}
-            agent.Draw();
+            map.Draw();
+        	agent.Draw();
         }
         EndDrawing();
         //----------------------------------------------------------------------------------
