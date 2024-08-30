@@ -33,7 +33,7 @@ int main() {
     raylib::Window window(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     NodeMap map;
-    map.Initialise("map2.txt", glm::vec2(screenWidth, screenHeight));
+    map.Initialise("map3.txt", glm::vec2(screenWidth, screenHeight));
 
     PathAgent agent(map.GetNode(1, 1), 40); 
 

@@ -82,16 +82,17 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize
 				if (nodeWest != nullptr)
 				{
 					// Create connections running both ways
-					currentNode->ConnectTo(nodeWest, currentNode->m_tileCost);
-					nodeWest->ConnectTo(currentNode, nodeWest->m_tileCost);
+					currentNode->ConnectTo(nodeWest, currentNode->m_tileCost * m_tileSize);
+					nodeWest->ConnectTo(currentNode, nodeWest->m_tileCost * m_tileSize);
+					// ^ Multiply tile cost by tile size, so cost is representative of the distance travelled
 				}
 
 				Node* nodeNorth = GetNode(x, y - 1);
 				if (nodeNorth != nullptr)
 				{
 					// Create connections running both ways
-					currentNode->ConnectTo(nodeNorth, currentNode->m_tileCost);
-					nodeNorth->ConnectTo(currentNode, nodeNorth->m_tileCost);
+					currentNode->ConnectTo(nodeNorth, currentNode->m_tileCost * m_tileSize);
+					nodeNorth->ConnectTo(currentNode, nodeNorth->m_tileCost * m_tileSize);
 				}
 			}
 		}
@@ -151,11 +152,11 @@ void NodeMap::Draw()
 				for (int i = 0; i < node->m_connections.size(); i++)
 				{
 					raylib::Color lineColor;
-					if (node->m_connections[i].m_cost == 1)
+					if (node->m_connections[i].m_cost == m_tileSize)
 					{
 						lineColor = raylib::Color::LightGray();
 					}
-					else if (node->m_connections[i].m_cost <= 3)
+					else if (node->m_connections[i].m_cost <= 3 * m_tileSize)
 					{
 						lineColor = raylib::Color::Orange();
 					}
@@ -176,6 +177,16 @@ void NodeMap::Draw()
 				//-----------------------------------------------------------------------------------------------------
 				raylib::Color textColor = raylib::Color::Gray();
 				textColor.DrawText(node->m_id, node->m_position.x, node->m_position.y, 10);
+
+				if (node->m_TEST != 0)
+				{
+					raylib::Color nodeColour;
+					nodeColour.a = 255;
+					nodeColour.b = 255;
+					nodeColour.r = 3 * node->m_TEST;
+					nodeColour.g = 3 * node->m_TEST;
+					DrawCircle(node->m_position.x, node->m_position.y, 5, nodeColour);
+				}
 				//-----------------------------------------------------------------------------------------------------
 			}
 		}
@@ -203,6 +214,7 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 	std::vector<Node*> closedList; // List of nodes that have already been passed
 
 	openList.push_back(startNode);
+	int nodesChecked = 0;
 
 	while (!openList.empty()) // While the openList isn't empty
 	{
@@ -219,8 +231,10 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 		// (If no comparison is provided, it uses <, which will sort the container into a max heap, but we want a min heap)
 		openList.pop_back(); // Remove the last element (the one we moved to the back, aka the current node)
 		//-----------------------------------------------------------------------------------------------------
-
+		
 		closedList.push_back(currentNode); // Add current node to closed list
+		nodesChecked++;
+		currentNode->m_TEST = nodesChecked;
 
 		// For each of the node's connections:
 		for (int i = 0; i < currentNode->m_connections.size(); i++)
@@ -234,6 +248,8 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 				if (std::find(openList.begin(), openList.end(), targetNode) == openList.end()) // If the target isn't in the open list already
 				{
 					targetNode->m_gScore = gScore;
+					targetNode->m_hScore = GetHScore(targetNode, endNode);
+					targetNode->m_fScore = gScore + targetNode->m_hScore;
 					targetNode->m_previousNode = currentNode;
 
 					// Update open list:
@@ -246,6 +262,7 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 				else if (gScore < targetNode->m_gScore) // If the node IS in the open list already, only change its info if this node's path is faster
 				{
 					targetNode->m_gScore = gScore;
+					targetNode->m_fScore = gScore + targetNode->m_hScore;
 					targetNode->m_previousNode = currentNode;
 
 					// Update open list:
@@ -272,6 +289,13 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 		finalPath.insert(finalPath.begin(), currentNode);
 		currentNode = currentNode->m_previousNode; // Follow the previous nodes to the start of the path
 	}
+
+	//std::cout << "Closed list: ";
+	//for (int i = 0; i < closedList.size(); i++)
+	//{
+	//	std::cout << closedList[i]->m_id << " ";
+	//}
+	//std::cout << std::endl;
 
 	return finalPath;
 }

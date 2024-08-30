@@ -29,14 +29,15 @@ struct Node
 {
 	glm::vec2 m_position;
 	std::vector<Edge> m_connections; // List of paths to other nodes
+	std::string m_id; // For display
 
-	// FOR TESTING ONLY:
-	std::string m_id;
-
-	int m_tileCost;
+	int m_TEST = 0;
 
 	// Used for search:
+	int m_tileCost;
 	float m_gScore; // Represents the cost of the path travelled to get here
+	float m_hScore; // Represents the cost of the fastest possible path to the end
+	float m_fScore; // gScore + hScore
 	Node* m_previousNode;
 
 	Node(float x, float y)
@@ -102,5 +103,11 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
 
 inline bool greaterComp(const Node* node1, const Node* node2) // Need to use this as the comparison because otherwise we couldn't compare pointers
 {
-	return node1->m_gScore > node2->m_gScore;
+	return node1->m_fScore > node2->m_fScore;
+}
+
+inline float GetHScore(const Node* startNode, const Node* endNode)
+{
+	glm::vec2 distance = endNode->m_position - startNode->m_position;
+	return glm::length(distance);
 }
