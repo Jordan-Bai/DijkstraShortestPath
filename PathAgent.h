@@ -25,4 +25,3 @@ public:
 	void Update(float deltaTime);
 	void Draw();
 };
-

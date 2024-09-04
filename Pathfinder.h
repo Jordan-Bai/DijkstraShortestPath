@@ -29,7 +29,6 @@ struct Node
 {
 	glm::vec2 m_position;
 	std::vector<Edge> m_connections; // List of paths to other nodes
-	std::string m_id; // For display
 
 	int m_TEST = 0;
 

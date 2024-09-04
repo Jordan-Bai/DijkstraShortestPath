@@ -2,7 +2,6 @@
 
 #include <Color.hpp>
 #include <raylib.h>
-#include <iostream>
 
 PathAgent::PathAgent(Node* node, float speed)
 	: m_currentNode(node), m_position(node->m_position), m_speed(speed)
@@ -42,8 +41,6 @@ void PathAgent::Update(float deltaTime)
 		return; // If the path is empty, don't do anything
 	}
 
-	//std::cout << "Moving" << std::endl;
-
 	Node* targetNode = m_path[m_currentIndex + 1];
 	glm::vec2 direction = targetNode->m_position - m_position;
 	float distance = glm::length(direction) - m_speed * deltaTime; // Accounts for overshooting the node
@@ -56,56 +53,49 @@ void PathAgent::Update(float deltaTime)
 	}
 	else // Means we've passed the next node
 	{
-		bool onPath = true;
-		while (onPath)
+		// Overshoot protection (mainly for if the agent is going extremely fast)
+		//-----------------------------------------------------------------------------------------------------
+		bool goToNext = true; // Should we target the next node?
+		while (goToNext)
 		{
+			// Loop through each node in the path till we find a node we haven't passed yet OR a node in a different direction to where we're heading
 			if (m_currentIndex < m_path.size() - 2) // If the agent isn't at the final node, go to the next index
 			{
 				m_currentIndex++;
 				m_currentNode = m_path[m_currentIndex];
 
-				// Check if the direction we've overshot the node in is the direction we should be going (on the path)
 				Node* nextNode = m_path[m_currentIndex + 1];
 				glm::vec2 nextDirection = nextNode->m_position - m_position;
 
-				// If the next target is in the same direction as the current target, we're still on the path
-				if (glm::normalize(nextDirection) == glm::normalize(direction))
+				if (glm::normalize(nextDirection) == glm::normalize(direction)) // If the next target is in the direction we're currently going
 				{
 					float nextDistance = glm::length(nextDirection) - m_speed * deltaTime;
 					if (nextDistance > 0) // Means we won't pass the next node this frame
 					{
+						// If it's going in the correct direction, but it hasn't passed its next target node, move it to its next position
+						// and end the loop
 						glm::vec2 vel = glm::normalize(nextDirection) * m_speed * deltaTime;
 						m_position += vel;
-						onPath = false; // EXIT LOOP
+						goToNext = false; // EXIT LOOP
 					}
 					// If nextDistance < 0, means we're going to overshoot the NEXT node as well, so continue the loop
 				}
-				else // Otherwise, that means our next position will NOT be on the path
+				else // If the next target ISN'T in the direction we're currently going
 				{
-					onPath = false; // EXIT LOOP
-					m_position = m_currentNode->m_position; // Set them to their last node, so they go back on the path
+					// If we move the agent to its next position, it won't be on the path
+					m_position = m_currentNode->m_position; // Instead, set the agent's position to their current node, so they're back on the path
+					goToNext = false; // EXIT LOOP
 				}
 			}
-			else // If they ARE at the end, finish the path
+			else // If they ARE at the last node, finish the path
 			{
 				m_currentNode = m_path[m_currentIndex + 1];
 				m_path.clear();
 				m_position = m_currentNode->m_position;
-				onPath = false; // EXIT LOOP
+				goToNext = false; // EXIT LOOP
 			}
 		}
-
-		//m_position = targetNode->m_position; // If the agent is within range, set their position to the node, to prevent issues with extreme speed
-		//if (m_currentIndex < m_path.size() - 2) // If the agent isn't at the final node, go to the next index
-		//{
-		//	m_currentIndex++;
-		//	m_currentNode = m_path[m_currentIndex];
-		//}
-		//else // If they ARE at the end, finish the path
-		//{
-		//	m_currentNode = m_path[m_currentIndex + 1];
-		//	m_path.clear();
-		//}
+		//-----------------------------------------------------------------------------------------------------
 	}
 }
 
@@ -124,7 +114,7 @@ void PathAgent::Draw()
 				raylib::Color::Black());
 
 			// For testing
-				//-----------------------------------------------------------------------------------------------------
+			//-----------------------------------------------------------------------------------------------------
 			raylib::Color textColor = raylib::Color::Black();
 			std::string text = std::to_string(int(m_path[i + 1]->m_gScore));
 			textColor.DrawText(text, m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y - 10, 10);

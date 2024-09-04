@@ -9,8 +9,6 @@
 
 void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize)
 {
-	std::cout << "Initialising map (TEST)" << std::endl;
-
 	m_height = asciiMap.size(); // The number of strings in the vector, aka the number of lines
 	m_width = asciiMap[0].size(); // The number of characters in this string (assuming it's the same for each line)
 
@@ -55,13 +53,6 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize
 				{
 					m_nodes[x + (y * m_width)]->m_tileCost = 1; 
 				}
-
-				// FOR TESTING
-				//-----------------------------------------------------------------------------------------------------
-				char letter = 65 + x; // Corresponds to letters on the ascii table
-				std::string id = letter + std::to_string(y);
-				m_nodes[x + (y * m_width)]->m_id = id;
-				//-----------------------------------------------------------------------------------------------------
 			}
 			else
 			{
@@ -81,18 +72,32 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize
 				Node* nodeWest = GetNode(x - 1, y);
 				if (nodeWest != nullptr)
 				{
+					// Get whichever tile cost is higher: That will be the cost of the edges
+					int maxCost = currentNode->m_tileCost;
+					if (nodeWest->m_tileCost > maxCost)
+					{
+						maxCost = nodeWest->m_tileCost;
+					}
+
 					// Create connections running both ways
-					currentNode->ConnectTo(nodeWest, currentNode->m_tileCost * m_tileSize);
-					nodeWest->ConnectTo(currentNode, nodeWest->m_tileCost * m_tileSize);
+					currentNode->ConnectTo(nodeWest, maxCost * m_tileSize);
+					nodeWest->ConnectTo(currentNode, maxCost * m_tileSize);
 					// ^ Multiply tile cost by tile size, so cost is representative of the distance travelled
 				}
 
 				Node* nodeNorth = GetNode(x, y - 1);
 				if (nodeNorth != nullptr)
 				{
+					// Get whichever tile cost is higher: That will be the cost of the edges
+					int maxCost = currentNode->m_tileCost;
+					if (nodeNorth->m_tileCost > maxCost)
+					{
+						maxCost = nodeNorth->m_tileCost;
+					}
+
 					// Create connections running both ways
-					currentNode->ConnectTo(nodeNorth, currentNode->m_tileCost * m_tileSize);
-					nodeNorth->ConnectTo(currentNode, nodeNorth->m_tileCost * m_tileSize);
+					currentNode->ConnectTo(nodeNorth, maxCost * m_tileSize);
+					nodeNorth->ConnectTo(currentNode, maxCost * m_tileSize);
 				}
 			}
 		}
@@ -151,6 +156,7 @@ void NodeMap::Draw()
 			{
 				for (int i = 0; i < node->m_connections.size(); i++)
 				{
+					// Change the line colour depending on the edge's cost
 					raylib::Color lineColor;
 					if (node->m_connections[i].m_cost == m_tileSize)
 					{
@@ -165,27 +171,22 @@ void NodeMap::Draw()
 						lineColor = raylib::Color::Red();
 					}
 					Node* neighbour = node->m_connections[i].m_target;
-					glm::vec2 distance = neighbour->m_position - node->m_position;
-					glm::vec2 midPoint = node->m_position + (distance * 0.5f);
 
-					DrawLine(node->m_position.x, node->m_position.y,				// This node's position (start of the line)
-						midPoint.x, midPoint.y,			// Neighbour's position (end of the line)
+					DrawLine(node->m_position.x, node->m_position.y,		// This node's position (start of the line)
+						neighbour->m_position.x, neighbour->m_position.y,	// Neighbour's position (end of the line)
 						lineColor);
 				}
 
 				// For testing
 				//-----------------------------------------------------------------------------------------------------
-				raylib::Color textColor = raylib::Color::Gray();
-				textColor.DrawText(node->m_id, node->m_position.x, node->m_position.y, 10);
-
 				if (node->m_TEST != 0)
 				{
 					raylib::Color nodeColour;
 					nodeColour.a = 255;
 					nodeColour.b = 255;
-					nodeColour.r = 3 * node->m_TEST;
-					nodeColour.g = 3 * node->m_TEST;
-					DrawCircle(node->m_position.x, node->m_position.y, 5, nodeColour);
+					nodeColour.r = 2 * node->m_TEST;
+					nodeColour.g = 2 * node->m_TEST;
+					DrawCircle(node->m_position.x, node->m_position.y, 5.0f, nodeColour);
 				}
 				//-----------------------------------------------------------------------------------------------------
 			}
@@ -289,13 +290,6 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 		finalPath.insert(finalPath.begin(), currentNode);
 		currentNode = currentNode->m_previousNode; // Follow the previous nodes to the start of the path
 	}
-
-	//std::cout << "Closed list: ";
-	//for (int i = 0; i < closedList.size(); i++)
-	//{
-	//	std::cout << closedList[i]->m_id << " ";
-	//}
-	//std::cout << std::endl;
 
 	return finalPath;
 }
