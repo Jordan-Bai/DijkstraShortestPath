@@ -1,6 +1,5 @@
 #include "PathAgent.h"
 
-#include <Color.hpp>
 #include <raylib.h>
 
 PathAgent::PathAgent(Node* node, float speed)
@@ -24,6 +23,16 @@ void PathAgent::SetCurrentNode(Node* node)
 	m_position = node->m_position;
 }
 
+Node* PathAgent::GetCurrentNode() const
+{
+	return m_currentNode;
+}
+
+void PathAgent::SetSpeed(float speed)
+{
+	m_speed = speed;
+}
+
 void PathAgent::SpeedUp()
 {
 	m_speed *= 2;
@@ -32,6 +41,11 @@ void PathAgent::SpeedUp()
 void PathAgent::SlowDown()
 {
 	m_speed *= 0.5f;
+}
+
+bool PathAgent::OnPath()
+{
+	return m_path.empty(); // Returns whether the path agent is following a path
 }
 
 void PathAgent::Update(float deltaTime)
@@ -99,26 +113,26 @@ void PathAgent::Update(float deltaTime)
 	}
 }
 
-void PathAgent::Draw()
+void PathAgent::Draw(Color colour)
 {
-	// Draw the agent
-	DrawCircle(m_position.x, m_position.y, 10, raylib::Color::Black());
-
 	// Draw the path
 	if (!m_path.empty())
 	{
-		for (int i = 0; i < m_path.size() - 1; i++)
+		for (int i = m_currentIndex; i < m_path.size() - 1; i++)
 		{
 			DrawLine(m_path[i]->m_position.x, m_path[i]->m_position.y, // Node i's position
 				m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y, // Node i+1's position
-				raylib::Color::Black());
+				colour);
 
 			// For testing
 			//-----------------------------------------------------------------------------------------------------
-			raylib::Color textColor = raylib::Color::Black();
+			raylib::Color textColor = colour;
 			std::string text = std::to_string(int(m_path[i + 1]->m_gScore));
 			textColor.DrawText(text, m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y - 10, 10);
 			//-----------------------------------------------------------------------------------------------------
 		}
 	}
+
+	// Draw the agent
+	DrawCircle(m_position.x, m_position.y, 10, colour);
 }

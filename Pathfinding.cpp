@@ -141,6 +141,18 @@ Node* NodeMap::GetNearestNode(int x, int y)
 	return GetNode(xCell, yCell);
 }
 
+Node* NodeMap::GetRandomNode()
+{
+	Node* node = nullptr;
+	while (node == nullptr)
+	{
+		int x = rand() % m_width;
+		int y = rand() % m_height;
+		node = GetNode(x, y);
+	}
+	return node;
+}
+
 void NodeMap::Draw()
 {
 	for (int y = 0; y < m_height; y++) // For each line in the map (aka each y value)
@@ -176,19 +188,6 @@ void NodeMap::Draw()
 						neighbour->m_position.x, neighbour->m_position.y,	// Neighbour's position (end of the line)
 						lineColor);
 				}
-
-				// For testing
-				//-----------------------------------------------------------------------------------------------------
-				if (node->m_TEST != 0)
-				{
-					raylib::Color nodeColour;
-					nodeColour.a = 255;
-					nodeColour.b = 255;
-					nodeColour.r = 2 * node->m_TEST;
-					nodeColour.g = 2 * node->m_TEST;
-					DrawCircle(node->m_position.x, node->m_position.y, 5.0f, nodeColour);
-				}
-				//-----------------------------------------------------------------------------------------------------
 			}
 		}
 	}
@@ -234,8 +233,6 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 		//-----------------------------------------------------------------------------------------------------
 		
 		closedList.push_back(currentNode); // Add current node to closed list
-		nodesChecked++;
-		currentNode->m_TEST = nodesChecked;
 
 		// For each of the node's connections:
 		for (int i = 0; i < currentNode->m_connections.size(); i++)

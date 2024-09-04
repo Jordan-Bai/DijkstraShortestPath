@@ -27,12 +27,24 @@
     <ClCompile Include="PathAgent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Agent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="States.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pathfinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PathAgent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Agent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="States.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

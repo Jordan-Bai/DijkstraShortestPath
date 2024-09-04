@@ -23,6 +23,8 @@
 #include "raylib-cpp.hpp"
 #include "Pathfinder.h"
 #include "PathAgent.h"
+#include "Agent.h"
+#include "States.h"
 
 int main() {
     // Initialization
@@ -35,7 +37,19 @@ int main() {
     NodeMap map;
     map.Initialise("map3.txt", glm::vec2(screenWidth, screenHeight));
 
-    PathAgent agent(map.GetNode(1, 1), 40); 
+    Node* start = map.GetNode(1, 1);
+    //PathAgent agent(start, 40);
+
+	GoToPoint myGoToState;
+    Agent agent1(&map, &myGoToState, { 0, 0, 0, 255 });
+    agent1.SetNode(start);
+    agent1.SetSpeed(64);
+
+    //Wander myWanderState;
+    Follow myFollowState(&agent1);
+    Agent agent2(&map, &myFollowState, {0, 0, 255, 255});
+    agent2.SetNode(map.GetNode(10, 1));
+    agent2.SetSpeed(64);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -44,25 +58,8 @@ int main() {
     while (!window.ShouldClose()) {   // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        if (IsMouseButtonPressed(0))
-        {
-            Vector2 mousePos = GetMousePosition();
-            Node* target = map.GetNearestNode(mousePos.x, mousePos.y);
-            if (target != nullptr)
-            {
-                agent.GoToNode(target);
-            }
-        }
-        if (IsKeyPressed(KEY_W))
-        {
-            agent.SpeedUp();
-        }
-        if (IsKeyPressed(KEY_S))
-        {
-            agent.SlowDown();
-        }
-
-        agent.Update(GetFrameTime()); // Get frame time returns deltaTime
+        agent1.Update(GetFrameTime()); // Get frame time returns deltaTime
+        agent2.Update(GetFrameTime());
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -72,7 +69,8 @@ int main() {
             window.ClearBackground(RAYWHITE);
 
             map.Draw();
-        	agent.Draw();
+        	agent1.Draw();
+            agent2.Draw();
         }
         EndDrawing();
         //----------------------------------------------------------------------------------

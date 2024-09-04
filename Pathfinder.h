@@ -30,8 +30,6 @@ struct Node
 	glm::vec2 m_position;
 	std::vector<Edge> m_connections; // List of paths to other nodes
 
-	int m_TEST = 0;
-
 	// Used for search:
 	int m_tileCost;
 	float m_gScore; // Represents the cost of the path travelled to get here
@@ -94,6 +92,7 @@ public:
 
 	Node* GetNode(int x, int y);
 	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
+	Node* GetRandomNode();
 
 	void Draw();
 };

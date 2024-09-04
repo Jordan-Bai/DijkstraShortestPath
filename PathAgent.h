@@ -1,6 +1,8 @@
 #pragma once
+
 #include <vector>
 #include <glm/glm.hpp> // Using glm for its vectors (specifically vec2)
+#include <Color.hpp>
 #include  "Pathfinder.h"
 
 class PathAgent
@@ -10,18 +12,22 @@ class PathAgent
 	Node* m_currentNode;
 
 	glm::vec2 m_position;
-	float m_speed;
+	float m_speed = 1; // Speed is 1 by default
 
 public:
-	PathAgent();
+	PathAgent() = default;
 	PathAgent(Node* node, float speed);
 
 	void GoToNode(Node* node);
 	void SetCurrentNode(Node* node);
+	Node* GetCurrentNode() const;
 
+	void SetSpeed(float speed);
 	void SpeedUp();
 	void SlowDown();
 
+	bool OnPath();
+
 	void Update(float deltaTime);
-	void Draw();
+	void Draw(Color colour);
 };
