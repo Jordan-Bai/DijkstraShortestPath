@@ -11,6 +11,7 @@ class Agent
 	Behaviour* m_behaviour; // Can be a state or an FSM
 	NodeMap* m_map;
 	Color m_colour;
+	int m_maxMove; // Max number of tiles they can move in 1 turn
 
 public:
 	//Agent(NodeMap* map, State* state);

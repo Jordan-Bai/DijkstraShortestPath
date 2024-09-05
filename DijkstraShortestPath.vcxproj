@@ -139,6 +139,7 @@
     <ClCompile Include="PathAgent.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
     <ClCompile Include="States.cpp" />
+    <ClCompile Include="TurnController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Agent.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="PathAgent.h" />
     <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="States.h" />
+    <ClInclude Include="TurnController.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
