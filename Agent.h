@@ -8,7 +8,7 @@
 class Agent
 {
 	PathAgent m_pathAgent;
-	Behaviour* m_behaviour;
+	Behaviour* m_behaviour; // Can be a state or an FSM
 	NodeMap* m_map;
 	Color m_colour;
 

@@ -1,7 +1,6 @@
 #include "States.h"
 
 #include "Agent.h"
-#include "raylib-cpp.hpp"
 
 std::vector<Transition> State::GetTransitions()
 {

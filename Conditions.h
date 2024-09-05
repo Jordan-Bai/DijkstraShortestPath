@@ -1,8 +1,9 @@
 #pragma once
 
-class Agent;
+class Agent; // Need to declare agent here, so condition & agent can reference each other
+// (agent includes state which includes transition which includes condition so we can't just include the agent header)
 
-class Condition
+class Condition // Abstract base class for all conditions
 {
 public:
 	virtual bool IsTrue(Agent* agent) = 0;
@@ -10,7 +11,7 @@ public:
 
 class DistanceCondition : public Condition
 {
-	Agent* m_target;
+	Agent* m_target; // The target whose distance we're finding
 	float m_distance; // The distance being compared against
 	bool m_isLessThan; // Whether this is a less-than comparision
 

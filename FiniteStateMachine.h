@@ -12,7 +12,7 @@ class FiniteStateMachine : public Behaviour
 	State* m_currentState;
 
 public:
-	FiniteStateMachine();
+	//FiniteStateMachine();
 	FiniteStateMachine(State* state);
 	//~FiniteStateMachine();
 

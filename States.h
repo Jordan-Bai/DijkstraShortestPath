@@ -3,7 +3,7 @@
 #include "Pathfinder.h"
 #include "Conditions.h"
 
-class Agent; // Need to declare agent here, so state & agent can reference each other
+//class Agent; // Need to declare agent here, so state & agent can reference each other
 class State; // Need to declare state here, so state & transition can reference each other
 
 struct Transition
