@@ -21,6 +21,7 @@ public:
 	void GoToNode(Node* node);
 	void SetCurrentNode(Node* node);
 	Node* GetCurrentNode() const;
+	glm::vec2 GetPosition() const;
 
 	void SetSpeed(float speed);
 	void SpeedUp();

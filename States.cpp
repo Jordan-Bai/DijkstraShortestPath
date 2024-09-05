@@ -3,6 +3,22 @@
 #include "Agent.h"
 #include "raylib-cpp.hpp"
 
+std::vector<Transition> State::GetTransitions()
+{
+    return m_transitions;
+}
+
+void State::AddTransition(Transition transition)
+{
+    m_transitions.push_back(transition);
+}
+
+void State::AddTransition(Condition* condition, State* targetState)
+{
+    Transition newTransition(condition, targetState);
+    m_transitions.push_back(newTransition);
+}
+
 void GoToPoint::Update(Agent* agent, float deltaTime)
 {
     if (IsMouseButtonPressed(0))

@@ -153,6 +153,11 @@ Node* NodeMap::GetRandomNode()
 	return node;
 }
 
+float NodeMap::GetTileSize() const
+{
+	return m_tileSize;
+}
+
 void NodeMap::Draw()
 {
 	for (int y = 0; y < m_height; y++) // For each line in the map (aka each y value)

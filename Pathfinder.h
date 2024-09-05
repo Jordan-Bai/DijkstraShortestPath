@@ -93,6 +93,7 @@ public:
 	Node* GetNode(int x, int y);
 	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
 	Node* GetRandomNode();
+	float GetTileSize() const;
 
 	void Draw();
 };

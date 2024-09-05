@@ -28,6 +28,11 @@ Node* PathAgent::GetCurrentNode() const
 	return m_currentNode;
 }
 
+glm::vec2 PathAgent::GetPosition() const
+{
+	return m_position;
+}
+
 void PathAgent::SetSpeed(float speed)
 {
 	m_speed = speed;

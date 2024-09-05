@@ -1,23 +1,30 @@
 #include "Agent.h"
 
-Agent::Agent(NodeMap* map, State* state)
-	: m_state(state), m_map(map), m_colour({255, 0, 0, 255})
+//Agent::Agent(NodeMap* map, State* state)
+//	: m_state(state), m_map(map), m_colour({255, 0, 0, 255})
+//{
+//	PathAgent pathAgent;
+//	m_pathAgent = pathAgent;
+//}
+//
+//Agent::Agent(NodeMap* map, State* state, Color colour)
+//	:m_map(map), m_state(state), m_colour(colour)
+//{
+//	PathAgent pathAgent;
+//	m_pathAgent = pathAgent;
+//}
+
+Agent::Agent(NodeMap* map, Behaviour* behaviour)
+	: m_map(map), m_behaviour(behaviour)
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;
 }
 
-Agent::Agent(NodeMap* map, State* state, Color colour)
-	:m_map(map), m_state(state), m_colour(colour)
-{
-	PathAgent pathAgent;
-	m_pathAgent = pathAgent;
-}
-
-Agent::~Agent()
-{
-	//delete m_state; // Why?
-}
+//Agent::~Agent()
+//{
+//	delete m_state; // Why?
+//}
 
 void Agent::SetSpeed(float speed)
 {
@@ -27,6 +34,11 @@ void Agent::SetSpeed(float speed)
 void Agent::SetNode(Node* node)
 {
 	m_pathAgent.SetCurrentNode(node);
+}
+
+void Agent::SetColour(Color colour)
+{
+	m_colour = colour;
 }
 
 void Agent::GoTo(int x, int y)
@@ -61,6 +73,11 @@ Node* Agent::GetCurrentNode() const
 	return m_pathAgent.GetCurrentNode();
 }
 
+glm::vec2 Agent::GetPosition() const
+{
+	return m_pathAgent.GetPosition();
+}
+
 void Agent::Update(float deltaTime)
 {
 	// Check inputs
@@ -74,9 +91,9 @@ void Agent::Update(float deltaTime)
 	}
 
 	// Update the state (if there is one)
-	if (m_state)
+	if (m_behaviour)
 	{
-		m_state->Update(this, deltaTime);
+		m_behaviour->Update(this, deltaTime);
 	}
 
 	// Move the agent
