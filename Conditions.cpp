@@ -1,5 +1,7 @@
 #include "Conditions.h"
 
+#include "Agent.h" // Need to include this so agent is properly defined and not just declared
+
 DistanceCondition::DistanceCondition(Agent* target, float distance, bool lessThanComp)
 	: m_target(target), m_distance(distance), m_isLessThan(lessThanComp)
 {

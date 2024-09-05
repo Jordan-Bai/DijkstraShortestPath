@@ -19,6 +19,15 @@ void State::AddTransition(Condition* condition, State* targetState)
     m_transitions.push_back(newTransition);
 }
 
+void State::Enter(Agent* agent)
+{
+}
+
+void State::Exit(Agent* agent)
+{
+}
+
+
 void GoToPoint::Update(Agent* agent, float deltaTime)
 {
     if (IsMouseButtonPressed(0))
@@ -26,6 +35,13 @@ void GoToPoint::Update(Agent* agent, float deltaTime)
         Vector2 mousePos = GetMousePosition();
         agent->GoTo(mousePos.x, mousePos.y);
     }
+}
+
+void Wander::Enter(Agent* agent)
+{
+    // Make agent blue when wandering
+    agent->SetColour({ 0, 0, 255, 255 });
+
 }
 
 void Wander::Update(Agent* agent, float deltaTime)
@@ -40,6 +56,12 @@ void Wander::Update(Agent* agent, float deltaTime)
 Follow::Follow(Agent* target)
 	:m_target(target)
 {
+}
+
+void Follow::Enter(Agent* agent)
+{
+    // Make agent purple when following
+    agent->SetColour({ 255, 0, 255, 255 });
 }
 
 void Follow::Update(Agent* agent, float deltaTime)

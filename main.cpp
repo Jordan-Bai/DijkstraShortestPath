@@ -49,11 +49,11 @@ int main() {
     agent1.SetColour({ 0, 0, 0, 255 });
 
     //Wander myWanderState;
-    Follow myFollowState(&agent1);
+    /*Follow myFollowState(&agent1);
     Agent agent2(&map, &myFollowState);
     agent2.SetNode(map.GetNode(10, 1));
     agent2.SetSpeed(32);
-    agent2.SetColour({ 0, 0, 255, 255 });
+    agent2.SetColour({ 0, 0, 255, 255 });*/
 
     // USING FSM
     //--------------------------------------------------------------------------------------
@@ -68,6 +68,8 @@ int main() {
 
     FiniteStateMachine fsm(&myWander2);
     Agent agent3(&map, &fsm);
+    agent3.SetNode(map.GetNode(16, 1));
+    agent3.SetSpeed(32);
     //--------------------------------------------------------------------------------------
 
     SetTargetFPS(60);
@@ -78,7 +80,7 @@ int main() {
         // Update
         //----------------------------------------------------------------------------------
         agent1.Update(GetFrameTime()); // Get frame time returns deltaTime
-        agent2.Update(GetFrameTime());
+        agent3.Update(GetFrameTime());
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -89,7 +91,7 @@ int main() {
 
             map.Draw();
         	agent1.Draw();
-            agent2.Draw();
+            agent3.Draw();
         }
         EndDrawing();
         //----------------------------------------------------------------------------------

@@ -13,10 +13,10 @@ struct Transition
 
 	Transition(Condition* condition, State* targetState)
 		: m_condition(condition), m_targetState(targetState) {}
-	~Transition()
+	/*~Transition()
 	{
-		delete m_condition;
-	}
+		delete m_condition; // BREAKS THINGS
+	}*/
 };
 
 class Behaviour // Abstract base class for states & fsm (so an agent can take a single state OR an fsm as its behaviour);
@@ -34,21 +34,22 @@ public:
 	void AddTransition(Transition transition);
 	void AddTransition(Condition* condition, State* targetState);
 
-	virtual void Enter(Agent* agent);
+	virtual void Enter(Agent* agent); // For any special behaviours when the state begins
 	virtual void Update(Agent* agent, float deltaTime) = 0;
-	virtual void Exit(Agent* agent);
+	virtual void Exit(Agent* agent); // For any special behaviours when the state ends
 };
 
 class GoToPoint : public State
 {
 public:
-	virtual void Update(Agent* agent, float deltaTime);
+	void Update(Agent* agent, float deltaTime) override;
 };
 
 class Wander : public State
 {
 public:
-	virtual void Update(Agent* agent, float deltaTime);
+	void Enter(Agent* agent) override;
+	void Update(Agent* agent, float deltaTime) override;
 };
 
 class Follow : public State
@@ -58,5 +59,6 @@ class Follow : public State
 public:
 	Follow(Agent* target);
 
-	virtual void Update(Agent* agent, float deltaTime);
+	void Enter(Agent* agent) override;
+	void Update(Agent* agent, float deltaTime) override;
 };

@@ -15,7 +15,7 @@
 //}
 
 Agent::Agent(NodeMap* map, Behaviour* behaviour)
-	: m_map(map), m_behaviour(behaviour)
+	: m_map(map), m_behaviour(behaviour), m_colour({ 0, 0, 255, 255 })
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;

@@ -14,8 +14,8 @@ class FiniteStateMachine : public Behaviour
 public:
 	FiniteStateMachine();
 	FiniteStateMachine(State* state);
-	~FiniteStateMachine();
+	//~FiniteStateMachine();
 
-	void Update(Agent* agent, float deltaTime);
+	void Update(Agent* agent, float deltaTime) override;
 };
 
