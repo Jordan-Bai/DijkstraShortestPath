@@ -196,15 +196,6 @@ void NodeMap::Draw()
 			}
 		}
 	}
-
-	// Show what tile the player is hovering over
-	Vector2 mousePos = GetMousePosition();
-	Node* hovered = GetNearestNode(mousePos.x, mousePos.y);
-	if (hovered) // If the cell they're hovering over isn't a wall
-	{
-		DrawRectangle(hovered->m_position.x - (m_tileSize / 2), hovered->m_position.y - (m_tileSize / 2),
-			m_tileSize - 1, m_tileSize - 1, {100, 100, 100, 100});
-	}
 }
 
 std::vector<Node*> PathSearch(Node* startNode, Node* endNode)

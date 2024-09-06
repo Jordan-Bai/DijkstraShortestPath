@@ -50,7 +50,7 @@ void PathAgent::SlowDown()
 
 bool PathAgent::OnPath()
 {
-	return m_path.empty(); // Returns whether the path agent is following a path
+	return !m_path.empty(); // Returns whether the path agent is following a path
 }
 
 void PathAgent::Update(float deltaTime)
@@ -62,12 +62,20 @@ void PathAgent::Update(float deltaTime)
 
 	Node* targetNode = m_path[m_currentIndex + 1];
 	glm::vec2 direction = targetNode->m_position - m_position;
-	float distance = glm::length(direction) - m_speed * deltaTime; // Accounts for overshooting the node
+
+	// Get the higher tile cost of the current & target tile
+	int maxCost = m_currentNode->m_tileCost;
+	if (targetNode->m_tileCost > maxCost)
+	{
+		maxCost = targetNode->m_tileCost;
+	}
+	float actualSpeed = m_speed * deltaTime / maxCost; // Adjust it to match the cost of the tiles we're traversing
+	float distance = glm::length(direction) - actualSpeed; // Accounts for overshooting the node
 
 	if (distance > 0)
 	{
 		// Move the agent
-		glm::vec2 vel = glm::normalize(direction) * m_speed * deltaTime;
+		glm::vec2 vel = glm::normalize(direction) * actualSpeed;
 		m_position += vel;
 	}
 	else // Means we've passed the next node
@@ -88,12 +96,12 @@ void PathAgent::Update(float deltaTime)
 
 				if (glm::normalize(nextDirection) == glm::normalize(direction)) // If the next target is in the direction we're currently going
 				{
-					float nextDistance = glm::length(nextDirection) - m_speed * deltaTime;
+					float nextDistance = glm::length(nextDirection) - actualSpeed;
 					if (nextDistance > 0) // Means we won't pass the next node this frame
 					{
 						// If it's going in the correct direction, but it hasn't passed its next target node, move it to its next position
 						// and end the loop
-						glm::vec2 vel = glm::normalize(nextDirection) * m_speed * deltaTime;
+						glm::vec2 vel = glm::normalize(nextDirection) * actualSpeed;
 						m_position += vel;
 						goToNext = false; // EXIT LOOP
 					}
@@ -128,13 +136,6 @@ void PathAgent::Draw(Color colour)
 			DrawLine(m_path[i]->m_position.x, m_path[i]->m_position.y, // Node i's position
 				m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y, // Node i+1's position
 				colour);
-
-			// For testing
-			//-----------------------------------------------------------------------------------------------------
-			raylib::Color textColor = colour;
-			std::string text = std::to_string(int(m_path[i + 1]->m_gScore));
-			textColor.DrawText(text, m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y - 10, 10);
-			//-----------------------------------------------------------------------------------------------------
 		}
 	}
 

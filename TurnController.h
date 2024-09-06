@@ -7,7 +7,7 @@ class TurnController
 	Agent* m_player;
 	std::vector<Agent*> m_agents;
 
-	int m_currentAgentIndex;
+	int m_agentIndex;
 	bool m_isPlayerTurn = true;
 	int m_turnCount;
 
@@ -17,9 +17,11 @@ public:
 	void AddAgent(Agent* agent);
 	void RemoveAgent(Agent* agent);
 
+	void StartPlayerTurn();
+	void StartEnemyTurn();
 	void FinishTurn();
 	void EndBattle();
 
-	void Update();
+	void Update(float deltaTime);
 	void Draw();
 };

@@ -48,6 +48,7 @@ int main() {
     agent1.SetNode(start);
     agent1.SetSpeed(64);
     agent1.SetColour({ 0, 0, 0, 255 });
+    agent1.SetMaxMove(6);
 
     // USING FSM
     //--------------------------------------------------------------------------------------
@@ -65,8 +66,27 @@ int main() {
     //agent3.SetNode(map.GetNode(16, 1));
     //agent3.SetSpeed(32);
     //--------------------------------------------------------------------------------------
+	MeleeAttack attack(&agent1, 2);
+
+    Agent enemy1(&map, &attack);
+    enemy1.SetNode(map.GetNode(16, 1));
+    enemy1.SetSpeed(128);
+    enemy1.SetMaxMove(6);
+
+    Agent enemy2(&map, &attack);
+    enemy2.SetNode(map.GetNode(16, 13));
+    enemy2.SetSpeed(128);
+    enemy2.SetMaxMove(6);
+
+    Agent enemy3(&map, &attack);
+    enemy3.SetNode(map.GetNode(1, 13));
+    enemy3.SetSpeed(128);
+    enemy3.SetMaxMove(6);
 
     TurnController tc(&agent1);
+    tc.AddAgent(&enemy1);
+    tc.AddAgent(&enemy2);
+    tc.AddAgent(&enemy3);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
@@ -75,8 +95,9 @@ int main() {
     while (!window.ShouldClose()) {   // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        agent1.Update(GetFrameTime()); // Get frame time returns deltaTime
+        //agent1.Update(GetFrameTime()); // Get frame time returns deltaTime
         //agent3.Update(GetFrameTime());
+        tc.Update(GetFrameTime());
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -86,7 +107,7 @@ int main() {
             window.ClearBackground(RAYWHITE);
 
             map.Draw();
-        	agent1.Draw();
+        	//agent1.Draw();
             //agent3.Draw();
             tc.Draw();
         }

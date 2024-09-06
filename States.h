@@ -23,6 +23,8 @@ class Behaviour // Abstract base class for states & fsm (so an agent can take a 
 {
 public:
 	virtual void Update(Agent* agent, float deltaTime) = 0; // "Pure virtual" function
+	virtual void Move(Agent* agent) = 0; // Do movement for that turn
+	virtual void Action(Agent* agent) = 0; // Do action for that turn
 };
 
 class State : public Behaviour // Abstract base class for all states
@@ -35,7 +37,9 @@ public:
 	void AddTransition(Condition* condition, State* targetState);
 
 	virtual void Enter(Agent* agent); // For any special behaviours when the state begins
-	virtual void Update(Agent* agent, float deltaTime) = 0;
+	virtual void Update(Agent* agent, float deltaTime);			// Do I need this anymore?
+	virtual void Move(Agent* agent); // Do movement for that turn
+	virtual void Action(Agent* agent); // Do action for that turn
 	virtual void Exit(Agent* agent); // For any special behaviours when the state ends
 };
 
@@ -56,9 +60,23 @@ class Follow : public State
 {
 	Agent* m_target;
 	Node* m_lastTargetNode;
+
 public:
 	Follow(Agent* target);
 
 	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
+};
+
+class MeleeAttack : public State
+{
+	Agent* m_target;
+	float m_range;
+	
+public:
+	MeleeAttack(Agent* target, float range);
+
+	void Enter(Agent* agent) override;
+	void Move(Agent* agent) override;
+	void Action(Agent* agent) override;
 };

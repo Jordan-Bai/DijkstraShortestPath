@@ -11,7 +11,9 @@ class Agent
 	Behaviour* m_behaviour; // Can be a state or an FSM
 	NodeMap* m_map;
 	Color m_colour;
-	int m_maxMove; // Max number of tiles they can move in 1 turn
+
+	bool m_turnComplete;
+	int m_maxMove = 2; // Max number of tiles they can move in 1 turn
 
 public:
 	//Agent(NodeMap* map, State* state);
@@ -22,15 +24,19 @@ public:
 	void SetSpeed(float speed);
 	void SetNode(Node* node);
 	void SetColour(Color colour);
+	void SetMaxMove(int max);
 
 	void GoTo(int x, int y);
 	void GoTo(Node* node);
 
+	void StartTurn();
+	bool TurnComplete();
 	bool PathComplete();
 
 	NodeMap* GetMap() const;
 	Node* GetCurrentNode() const;
 	glm::vec2 GetPosition() const;
+	int GetMaxMove() const;
 
 	void Update(float deltaTime);
 	void Draw();

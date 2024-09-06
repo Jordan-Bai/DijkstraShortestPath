@@ -41,6 +41,11 @@ void Agent::SetColour(Color colour)
 	m_colour = colour;
 }
 
+void Agent::SetMaxMove(int max)
+{
+	m_maxMove = max;
+}
+
 void Agent::GoTo(int x, int y)
 {
 	Node* target = m_map->GetNearestNode(x, y);
@@ -56,6 +61,20 @@ void Agent::GoTo(Node* node)
 	{
 		m_pathAgent.GoToNode(node);
 	}
+}
+
+void Agent::StartTurn()
+{
+	if (m_behaviour) // Only start the turn if they actually HAVE a behaviour
+	{
+		m_turnComplete = false; // Since it's a new turn, reset the bool
+		m_behaviour->Move(this);
+	}
+}
+
+bool Agent::TurnComplete()
+{
+	return m_turnComplete;
 }
 
 bool Agent::PathComplete()
@@ -78,6 +97,11 @@ glm::vec2 Agent::GetPosition() const
 	return m_pathAgent.GetPosition();
 }
 
+int Agent::GetMaxMove() const
+{
+	return m_maxMove;
+}
+
 void Agent::Update(float deltaTime)
 {
 	// Check inputs
@@ -98,6 +122,12 @@ void Agent::Update(float deltaTime)
 
 	// Move the agent
 	m_pathAgent.Update(deltaTime);
+
+	if (!m_pathAgent.OnPath() && m_behaviour) // If they're not on a path (no longer moving) & have a behaviour
+	{
+		m_behaviour->Action(this);
+		m_turnComplete = true;
+	}
 }
 
 void Agent::Draw()
