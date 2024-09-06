@@ -66,19 +66,28 @@ int main() {
     //agent3.SetNode(map.GetNode(16, 1));
     //agent3.SetSpeed(32);
     //--------------------------------------------------------------------------------------
-	MeleeAttack attack(&agent1, 2);
+    FinishedMoving* moved = new FinishedMoving;
+    NewTurn* turnStarted = new NewTurn;
 
-    Agent enemy1(&map, &attack);
+    MeleeMove move(&agent1);
+    MeleeAttack attack(&agent1, 2);
+
+    move.AddTransition(moved, &attack);
+    attack.AddTransition(turnStarted, &move);
+
+    FiniteStateMachine fsm(&move);
+
+    Agent enemy1(&map, &fsm);
     enemy1.SetNode(map.GetNode(16, 1));
     enemy1.SetSpeed(128);
     enemy1.SetMaxMove(6);
 
-    Agent enemy2(&map, &attack);
+    Agent enemy2(&map, &fsm);
     enemy2.SetNode(map.GetNode(16, 13));
     enemy2.SetSpeed(128);
     enemy2.SetMaxMove(6);
 
-    Agent enemy3(&map, &attack);
+    Agent enemy3(&map, &fsm);
     enemy3.SetNode(map.GetNode(1, 13));
     enemy3.SetSpeed(128);
     enemy3.SetMaxMove(6);

@@ -12,3 +12,13 @@ bool DistanceCondition::IsTrue(Agent* agent)
 	bool lessThan = (glm::distance(agent->GetPosition(), m_target->GetPosition())) < m_distance;
 	return (lessThan == m_isLessThan);
 }
+
+bool FinishedMoving::IsTrue(Agent* agent)
+{
+	return agent->PathComplete();
+}
+
+bool NewTurn::IsTrue(Agent* agent)
+{
+	return !agent->TurnComplete();
+}

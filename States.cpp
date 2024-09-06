@@ -29,16 +29,6 @@ void State::Update(Agent* agent, float deltaTime)
 {
 	
 }
-
-void State::Move(Agent* agent)
-{
-	
-}
-
-void State::Action(Agent* agent)
-{
-	
-}
 //--------------------------------------------------------------------------------------
 
 void State::Exit(Agent* agent)
@@ -117,14 +107,22 @@ void MeleeAttack::Enter(Agent* agent)
     if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
     {
         std::cout << "BAM" << std::endl;
+
     }
 }
 
-void MeleeAttack::Move(Agent* agent)
+// MeleeMove
+MeleeMove::MeleeMove(Agent* target)
+    :m_target(target)
+{
+}
+
+void MeleeMove::Enter(Agent* agent)
 {
     std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode());
     if (desiredPath.empty()) // If there's no path to the target, don't move
     {
+        std::cout << "No path" << std::endl;
         return;
     }
 
@@ -141,14 +139,5 @@ void MeleeAttack::Move(Agent* agent)
     else
     {
         agent->GoTo(desiredPath[desiredPath.size() - 2]); // The node just before the player
-    }
-}
-
-void MeleeAttack::Action(Agent* agent)
-{
-    glm::vec2 distance = m_target->GetPosition() - agent->GetPosition();
-    if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
-    {
-        std::cout << "BAM" << std::endl;
     }
 }

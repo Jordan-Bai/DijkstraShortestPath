@@ -68,7 +68,7 @@ void Agent::StartTurn()
 	if (m_behaviour) // Only start the turn if they actually HAVE a behaviour
 	{
 		m_turnComplete = false; // Since it's a new turn, reset the bool
-		m_behaviour->Move(this);
+		//m_behaviour->Move(this);
 	}
 }
 
@@ -125,7 +125,7 @@ void Agent::Update(float deltaTime)
 
 	if (!m_pathAgent.OnPath() && m_behaviour) // If they're not on a path (no longer moving) & have a behaviour
 	{
-		m_behaviour->Action(this);
+		//m_behaviour->Action(this);
 		m_turnComplete = true;
 	}
 }

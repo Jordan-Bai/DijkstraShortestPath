@@ -17,5 +17,17 @@ class DistanceCondition : public Condition
 
 public:
 	DistanceCondition(Agent* target, float distance, bool lessThanComp);
-	virtual bool IsTrue(Agent* agent);
+	bool IsTrue(Agent* agent) override;
+};
+
+class FinishedMoving : public Condition
+{
+public:
+	bool IsTrue(Agent* agent) override;
+};
+
+class NewTurn : public Condition
+{
+public:
+	bool IsTrue(Agent* agent) override;
 };
