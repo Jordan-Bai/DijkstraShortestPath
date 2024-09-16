@@ -72,14 +72,8 @@ class MeleeAttack : public State
 public:
 	MeleeAttack(Agent* target, float range);
 
-	void Enter(Agent* agent) override;
-};
+	void Update(Agent* agent, float deltaTime) override;
 
-class MeleeMove : public State
-{
-	Agent* m_target;
-public:
-	MeleeMove(Agent* target);
-
-	void Enter(Agent* agent) override;
+	void Move(Agent* agent);
+	void Action(Agent* agent);
 };

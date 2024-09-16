@@ -50,34 +50,13 @@ int main() {
     agent1.SetColour({ 0, 0, 0, 255 });
     agent1.SetMaxMove(6);
 
-    // USING FSM
+    // CREATING ENEMIES
     //--------------------------------------------------------------------------------------
-    //DistanceCondition* closerThan5 = new DistanceCondition(&agent1, 5.0f * map.GetTileSize(), true);
-    //DistanceCondition* furtherThan7 = new DistanceCondition(&agent1, 7.0f * map.GetTileSize(), false);
-
-    //Wander myWander2;
-    //Follow myFollow2(&agent1);
-
-    //myWander2.AddTransition(closerThan5, &myFollow2);
-    //myFollow2.AddTransition(furtherThan7, &myWander2);
-
-    //FiniteStateMachine fsm(&myWander2);
-    //Agent agent3(&map, &fsm);
-    //agent3.SetNode(map.GetNode(16, 1));
-    //agent3.SetSpeed(32);
-    //--------------------------------------------------------------------------------------
-    FinishedMoving* moved = new FinishedMoving;
-    NewTurn* turnStarted = new NewTurn;
-
-    MeleeMove move(&agent1);
     MeleeAttack attack(&agent1, 2);
 
-    move.AddTransition(moved, &attack);
-    attack.AddTransition(turnStarted, &move);
+    FiniteStateMachine fsm(&attack); // Not actually doing anything rn, fix later
 
-    FiniteStateMachine fsm(&move);
-
-    Agent enemy1(&map, &fsm);
+    Agent enemy1(&map, &attack);
     enemy1.SetNode(map.GetNode(16, 1));
     enemy1.SetSpeed(128);
     enemy1.SetMaxMove(6);
@@ -91,6 +70,7 @@ int main() {
     enemy3.SetNode(map.GetNode(1, 13));
     enemy3.SetSpeed(128);
     enemy3.SetMaxMove(6);
+    //--------------------------------------------------------------------------------------
 
     TurnController tc(&agent1);
     tc.AddAgent(&enemy1);

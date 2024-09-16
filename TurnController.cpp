@@ -23,13 +23,13 @@ void TurnController::RemoveAgent(Agent* agent)
 void TurnController::StartPlayerTurn()
 {
 	m_isPlayerTurn = true;
-	std::cout << "Player turn" << std::endl;
+	std::cout << std::endl << "Player turn" << std::endl;
 }
 
 void TurnController::StartEnemyTurn()
 {
 	m_isPlayerTurn = false;
-	std::cout << "Enemy turn" << std::endl;
+	std::cout << std::endl << "Enemy turn" << std::endl;
 	if (m_agents.empty()) // If there are no enemies, we can't start the enemy turn
 	{
 		std::cout << "Empty" << std::endl;
@@ -81,6 +81,23 @@ void TurnController::Update(float deltaTime)
 			{
 				m_agents[m_agentIndex]->StartTurn();
 			}
+		}
+	}
+
+	if (IsKeyPressed(KEY_W))
+	{
+		m_player->SpeedUp();
+		for (int i = 0; i < m_agents.size(); i++)
+		{
+			m_agents[i]->SpeedUp();
+		}
+	}
+	if (IsKeyPressed(KEY_S))
+	{
+		m_player->SlowDown();
+		for (int i = 0; i < m_agents.size(); i++)
+		{
+			m_agents[i]->SlowDown();
 		}
 	}
 }

@@ -101,28 +101,33 @@ MeleeAttack::MeleeAttack(Agent* target, float range)
 {
 }
 
-void MeleeAttack::Enter(Agent* agent)
+void MeleeAttack::Update(Agent* agent, float deltaTime)
 {
-    glm::vec2 distance = m_target->GetPosition() - agent->GetPosition();
-    if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
+    if (agent->PathComplete()) // If they're not moving
     {
-        std::cout << "BAM" << std::endl;
-
+        glm::vec2 distance = m_target->GetPosition() - agent->GetPosition();
+        if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
+        {
+            Action(agent);
+        }
+        else if (agent->GetMovesLeft() > 0) // Otherwise, if they can still move, do so
+        {
+            Move(agent);
+        }
+        else // If they can't do anything, finish the turn
+        {
+            agent->FinishTurn();
+        }
     }
 }
 
-// MeleeMove
-MeleeMove::MeleeMove(Agent* target)
-    :m_target(target)
-{
-}
-
-void MeleeMove::Enter(Agent* agent)
+void MeleeAttack::Move(Agent* agent)
 {
     std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode());
     if (desiredPath.empty()) // If there's no path to the target, don't move
     {
         std::cout << "No path" << std::endl;
+        agent->StopMovement();
         return;
     }
 
@@ -140,4 +145,15 @@ void MeleeMove::Enter(Agent* agent)
     {
         agent->GoTo(desiredPath[desiredPath.size() - 2]); // The node just before the player
     }
+    agent->StopMovement(); // FOR TESTING
+}
+
+void MeleeAttack::Action(Agent* agent)
+{
+    glm::vec2 distance = m_target->GetPosition() - agent->GetPosition();
+    if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
+    {
+        std::cout << "BAM" << std::endl;
+    }
+    agent->FinishTurn();
 }

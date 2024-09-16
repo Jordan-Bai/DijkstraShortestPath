@@ -46,6 +46,16 @@ void Agent::SetMaxMove(int max)
 	m_maxMove = max;
 }
 
+void Agent::SpeedUp()
+{
+	m_pathAgent.SpeedUp();
+}
+
+void Agent::SlowDown()
+{
+	m_pathAgent.SlowDown();
+}
+
 void Agent::GoTo(int x, int y)
 {
 	Node* target = m_map->GetNearestNode(x, y);
@@ -63,12 +73,25 @@ void Agent::GoTo(Node* node)
 	}
 }
 
+void Agent::StopMovement()
+{
+	m_movesLeft = 0;
+}
+
 void Agent::StartTurn()
 {
 	if (m_behaviour) // Only start the turn if they actually HAVE a behaviour
 	{
 		m_turnComplete = false; // Since it's a new turn, reset the bool
-		//m_behaviour->Move(this);
+		m_movesLeft = m_maxMove; // Reset the number of tiles they can move
+	}
+}
+
+void Agent::FinishTurn()
+{
+	if (m_behaviour) // Only end the turn if they actually HAVE a behaviour
+	{
+		m_turnComplete = true;
 	}
 }
 
@@ -79,7 +102,7 @@ bool Agent::TurnComplete()
 
 bool Agent::PathComplete()
 {
-	return m_pathAgent.OnPath();
+	return !m_pathAgent.OnPath();
 }
 
 NodeMap* Agent::GetMap() const
@@ -102,17 +125,22 @@ int Agent::GetMaxMove() const
 	return m_maxMove;
 }
 
+int Agent::GetMovesLeft() const
+{
+	return m_movesLeft;
+}
+
 void Agent::Update(float deltaTime)
 {
 	// Check inputs
-	if (IsKeyPressed(KEY_W))
-	{
-		m_pathAgent.SpeedUp();
-	}
-	if (IsKeyPressed(KEY_S))
-	{
-		m_pathAgent.SlowDown();
-	}
+	//if (IsKeyPressed(KEY_W))
+	//{
+	//	m_pathAgent.SpeedUp();
+	//}
+	//if (IsKeyPressed(KEY_S))
+	//{
+	//	m_pathAgent.SlowDown();
+	//}
 
 	// Update the state (if there is one)
 	if (m_behaviour)
@@ -122,12 +150,6 @@ void Agent::Update(float deltaTime)
 
 	// Move the agent
 	m_pathAgent.Update(deltaTime);
-
-	if (!m_pathAgent.OnPath() && m_behaviour) // If they're not on a path (no longer moving) & have a behaviour
-	{
-		//m_behaviour->Action(this);
-		m_turnComplete = true;
-	}
 }
 
 void Agent::Draw()
