@@ -64,6 +64,14 @@ public:
 	void Update(Agent* agent, float deltaTime) override;
 };
 
+class PlayerIdle : public State
+{
+public:
+	void Update(Agent* agent, float deltaTime) override;
+
+	void Attack(Agent* agent);
+};
+
 class MeleeAttack : public State
 {
 	Agent* m_target;
@@ -75,5 +83,5 @@ public:
 	void Update(Agent* agent, float deltaTime) override;
 
 	void Move(Agent* agent);
-	void Action(Agent* agent);
+	void Attack(Agent* agent);
 };

@@ -4,7 +4,8 @@
 #include <glm/glm.hpp> // Using glm for its vectors (specifically vec2)
 #include <iostream>
 
-struct Node;
+class Agent; // Need to declare Agent here, so Node & Agent can reference each other
+struct Node; // Need to declare Node here, so Node & Edge can reference each other
 
 struct Edge
 {
@@ -36,6 +37,7 @@ struct Node
 	float m_hScore; // Represents the cost of the fastest possible path to the end
 	float m_fScore; // gScore + hScore
 	Node* m_previousNode;
+	Agent* m_occupant = nullptr; // An agent currently in the tile
 
 	Node(float x, float y)
 	{

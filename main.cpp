@@ -43,33 +43,38 @@ int main() {
     Node* start = map.GetNode(1, 1);
     //PathAgent agent(start, 40);
 
-	GoToPoint myGoToState;
-    Agent agent1(&map, &myGoToState);
+    PlayerIdle playerState;
+	//GoToPoint myGoToState;
+    Agent agent1(&map, &playerState);
     agent1.SetNode(start);
-    agent1.SetSpeed(64);
+    agent1.SetSpeed(256);
     agent1.SetColour({ 0, 0, 0, 255 });
-    agent1.SetMaxMove(6);
+    agent1.SetMaxMove(15);
+    agent1.SetHealth(10);
 
     // CREATING ENEMIES
     //--------------------------------------------------------------------------------------
-    MeleeAttack attack(&agent1, 2);
+    MeleeAttack attack(&agent1, 1.25f);
 
     FiniteStateMachine fsm(&attack); // Not actually doing anything rn, fix later
 
     Agent enemy1(&map, &attack);
     enemy1.SetNode(map.GetNode(16, 1));
-    enemy1.SetSpeed(128);
+    enemy1.SetSpeed(512);
     enemy1.SetMaxMove(6);
+    enemy1.SetHealth(3);
 
     Agent enemy2(&map, &fsm);
     enemy2.SetNode(map.GetNode(16, 13));
-    enemy2.SetSpeed(128);
+    enemy2.SetSpeed(512);
     enemy2.SetMaxMove(6);
+    enemy2.SetHealth(3);
 
     Agent enemy3(&map, &fsm);
     enemy3.SetNode(map.GetNode(1, 13));
-    enemy3.SetSpeed(128);
+    enemy3.SetSpeed(512);
     enemy3.SetMaxMove(6);
+    enemy3.SetHealth(3);
     //--------------------------------------------------------------------------------------
 
     TurnController tc(&agent1);

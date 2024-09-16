@@ -24,15 +24,16 @@ void TurnController::StartPlayerTurn()
 {
 	m_isPlayerTurn = true;
 	std::cout << std::endl << "Player turn" << std::endl;
+	m_player->StartTurn();
 }
 
 void TurnController::StartEnemyTurn()
 {
-	m_isPlayerTurn = false;
 	std::cout << std::endl << "Enemy turn" << std::endl;
 	if (m_agents.empty()) // If there are no enemies, we can't start the enemy turn
 	{
 		std::cout << "Empty" << std::endl;
+		StartPlayerTurn();
 		return;
 	}
 	m_isPlayerTurn = false;
@@ -42,11 +43,6 @@ void TurnController::StartEnemyTurn()
 	m_agents[0]->StartTurn();
 }
 
-void TurnController::FinishTurn()
-{
-	
-}
-
 void TurnController::EndBattle()
 {
 	
@@ -54,21 +50,42 @@ void TurnController::EndBattle()
 
 void TurnController::Update(float deltaTime)
 {
-	// For testing:
-	//--------------------------------------------------------------------------------------
-	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-	{
-		StartEnemyTurn();
-	}
-	//--------------------------------------------------------------------------------------
 
 	if (m_isPlayerTurn)
 	{
 		m_player->Update(deltaTime);
 		// DO PLAYER TURN LOGIC
+		
+		// Player inputs
+		//--------------------------------------------------------------------------------------
+		if ((IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) 
+			&& m_player->PathComplete()) // Player isn't still moving
+		{
+			StartEnemyTurn(); // End the player's turn
+		}
+		//--------------------------------------------------------------------------------------
+
+		if (m_player->TurnComplete())
+		{
+			StartEnemyTurn();
+		}
 	}
 	else
 	{
+		if (m_agents[m_agentIndex]->IsDead()) // If the agent is dead, remove it from the list of agents
+		{
+			m_agents.erase(m_agents.begin() + m_agentIndex);
+
+			if (m_agentIndex >= m_agents.size()) // If the dead agent was the last one in the list, end the enemy turn
+			{
+				StartPlayerTurn();
+				return;
+			}
+			else // otherwise, start the next agent's turn
+			{
+				m_agents[m_agentIndex]->StartTurn();
+			}
+		}
 		m_agents[m_agentIndex]->Update(deltaTime);
 		if (m_agents[m_agentIndex]->TurnComplete()) // If the agent finished its turn, move on to the next one
 		{
@@ -125,9 +142,10 @@ void TurnController::Draw()
 			{
 				// Draw the path to the node
 				Color tileColour = {0, 0, 0, 64 };
+				float movesLeftScaled = m_player->GetMovesLeft() * m_player->GetMap()->GetTileSize(); // For checking if the tile is in range
 				for (int i = 0; i < path.size(); i++)
 				{
-					if (i > m_player->GetMaxMove()) // If the tile is out of the player's max move distance
+					if (path[i]->m_gScore > movesLeftScaled) // If the tile is out of the player's max move distance
 					{
 						tileColour = { 255, 0, 0, 64}; // Change the colour to red to show it's out of range
 					}

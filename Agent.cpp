@@ -15,7 +15,7 @@
 //}
 
 Agent::Agent(NodeMap* map, Behaviour* behaviour)
-	: m_map(map), m_behaviour(behaviour), m_colour({ 0, 0, 255, 255 })
+	: m_map(map), m_behaviour(behaviour), m_colour({ 0, 0, 255, 255 }), m_maxMove(1), m_health(1), m_atk(1)
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;
@@ -33,7 +33,12 @@ void Agent::SetSpeed(float speed)
 
 void Agent::SetNode(Node* node)
 {
+	if (m_pathAgent.GetCurrentNode()) // If the agent was already at a node
+	{
+		m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Clear self from old node
+	}
 	m_pathAgent.SetCurrentNode(node);
+	node->m_occupant = this;
 }
 
 void Agent::SetColour(Color colour)
@@ -44,7 +49,19 @@ void Agent::SetColour(Color colour)
 void Agent::SetMaxMove(int max)
 {
 	m_maxMove = max;
+	m_movesLeft = max; // If I end up setting max move DURING a turn this could cause issues
 }
+
+void Agent::SetHealth(int health)
+{
+	m_health = health;
+}
+
+void Agent::SetAttack(int attackDamage)
+{
+	m_atk = attackDamage;
+}
+
 
 void Agent::SpeedUp()
 {
@@ -55,6 +72,7 @@ void Agent::SlowDown()
 {
 	m_pathAgent.SlowDown();
 }
+
 
 void Agent::GoTo(int x, int y)
 {
@@ -70,6 +88,15 @@ void Agent::GoTo(Node* node)
 	if (node)
 	{
 		m_pathAgent.GoToNode(node);
+		if (m_pathAgent.OnPath()) // If there was a valid path to the node
+		{
+			int gScoreScaled = node->m_gScore / m_map->GetTileSize();
+			m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
+
+			// Update which nodes are occupied (COULD CAUSE ISSUES IF IT DOESN'T REACH THE TARGET)
+			//m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Set the current node as unoccupied 
+			//node->m_occupant = this; // Set self as occupying the target node
+		}
 	}
 }
 
@@ -77,6 +104,7 @@ void Agent::StopMovement()
 {
 	m_movesLeft = 0;
 }
+
 
 void Agent::StartTurn()
 {
@@ -105,6 +133,22 @@ bool Agent::PathComplete()
 	return !m_pathAgent.OnPath();
 }
 
+
+void Agent::TakeDamage(int damage)
+{
+	m_health -= damage;
+	if (m_health <= 0) // If this agent has died
+	{
+		m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Clear self from the node
+	}
+}
+
+bool Agent::IsDead()
+{
+	return (m_health <= 0);
+}
+
+
 NodeMap* Agent::GetMap() const
 {
 	return m_map;
@@ -130,17 +174,15 @@ int Agent::GetMovesLeft() const
 	return m_movesLeft;
 }
 
+int Agent::GetAttack() const
+{
+	return m_atk;
+}
+
+
 void Agent::Update(float deltaTime)
 {
-	// Check inputs
-	//if (IsKeyPressed(KEY_W))
-	//{
-	//	m_pathAgent.SpeedUp();
-	//}
-	//if (IsKeyPressed(KEY_S))
-	//{
-	//	m_pathAgent.SlowDown();
-	//}
+	m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Clear self from current node
 
 	// Update the state (if there is one)
 	if (m_behaviour)
@@ -148,11 +190,19 @@ void Agent::Update(float deltaTime)
 		m_behaviour->Update(this, deltaTime);
 	}
 
+	Node* lastNode = m_pathAgent.GetCurrentNode();
+
 	// Move the agent
 	m_pathAgent.Update(deltaTime);
+
+	m_pathAgent.GetCurrentNode()->m_occupant = this; // Set the current node as occupied by this agent
 }
 
 void Agent::Draw()
 {
 	m_pathAgent.Draw(m_colour);
+
+	glm::vec2 pos = m_pathAgent.GetPosition();
+	std::string healthText = std::to_string(m_health);
+	raylib::Color::White().DrawText(healthText, pos.x - 3, pos.y - 4, 10);
 }

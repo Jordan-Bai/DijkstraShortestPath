@@ -19,7 +19,6 @@ public:
 
 	void StartPlayerTurn();
 	void StartEnemyTurn();
-	void FinishTurn();
 	void EndBattle();
 
 	void Update(float deltaTime);

@@ -13,8 +13,11 @@ class Agent
 	Color m_colour;
 
 	bool m_turnComplete;
-	int m_maxMove = 2; // Max number of tiles they can move in 1 turn
+	int m_maxMove; // Max number of tiles they can move in 1 turn
 	int m_movesLeft; // Amount of tiles they can move this turn
+	
+	int m_health;
+	int m_atk;
 
 public:
 	//Agent(NodeMap* map, State* state);
@@ -26,6 +29,8 @@ public:
 	void SetNode(Node* node);
 	void SetColour(Color colour);
 	void SetMaxMove(int max);
+	void SetHealth(int health);
+	void SetAttack(int attackDamage);
 
 	void SpeedUp();
 	void SlowDown();
@@ -39,11 +44,15 @@ public:
 	bool TurnComplete();
 	bool PathComplete();
 
+	void TakeDamage(int damage);
+	bool IsDead();
+
 	NodeMap* GetMap() const;
 	Node* GetCurrentNode() const;
 	glm::vec2 GetPosition() const;
 	int GetMaxMove() const;
 	int GetMovesLeft() const;
+	int GetAttack() const;
 
 	void Update(float deltaTime);
 	void Draw();
