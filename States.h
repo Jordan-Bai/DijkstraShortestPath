@@ -85,3 +85,13 @@ public:
 	void Move(Agent* agent);
 	void Attack(Agent* agent);
 };
+
+class Fleeing : public State
+{
+	Agent* m_target;
+
+public:
+	Fleeing(Agent* target);
+
+	void Update(Agent* agent, float deltaTime) override;
+};

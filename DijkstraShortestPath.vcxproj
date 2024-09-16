@@ -138,6 +138,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathAgent.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
+    <ClCompile Include="SearchParameters.cpp" />
     <ClCompile Include="States.cpp" />
     <ClCompile Include="TurnController.cpp" />
   </ItemGroup>
@@ -147,6 +148,7 @@
     <ClInclude Include="FiniteStateMachine.h" />
     <ClInclude Include="PathAgent.h" />
     <ClInclude Include="Pathfinder.h" />
+    <ClInclude Include="SearchParameters.h" />
     <ClInclude Include="States.h" />
     <ClInclude Include="TurnController.h" />
   </ItemGroup>

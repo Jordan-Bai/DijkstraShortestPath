@@ -219,7 +219,6 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 	std::vector<Node*> closedList; // List of nodes that have already been passed
 
 	openList.push_back(startNode);
-	int nodesChecked = 0;
 
 	while (!openList.empty()) // While the openList isn't empty
 	{

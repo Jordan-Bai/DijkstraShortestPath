@@ -199,3 +199,14 @@ void MeleeAttack::Attack(Agent* agent)
     }
     agent->FinishTurn();
 }
+
+// Fleeing
+Fleeing::Fleeing(Agent* target)
+    : m_target(target)
+{
+}
+
+void Fleeing::Update(Agent* agent, float deltaTime)
+{
+
+}
