@@ -2,7 +2,6 @@
 
 #include <Color.hpp>
 #include <raylib.h>
-#include <iostream>
 
 PathAgent::PathAgent(Node* node, float speed)
 	: m_currentNode(node), m_position(node->m_position), m_speed(speed)
@@ -41,8 +40,6 @@ void PathAgent::Update(float deltaTime)
 	{
 		return; // If the path is empty, don't do anything
 	}
-
-	//std::cout << "Moving" << std::endl;
 
 	Node* targetNode = m_path[m_currentIndex + 1];
 	glm::vec2 direction = targetNode->m_position - m_position;
@@ -94,18 +91,6 @@ void PathAgent::Update(float deltaTime)
 				onPath = false; // EXIT LOOP
 			}
 		}
-
-		//m_position = targetNode->m_position; // If the agent is within range, set their position to the node, to prevent issues with extreme speed
-		//if (m_currentIndex < m_path.size() - 2) // If the agent isn't at the final node, go to the next index
-		//{
-		//	m_currentIndex++;
-		//	m_currentNode = m_path[m_currentIndex];
-		//}
-		//else // If they ARE at the end, finish the path
-		//{
-		//	m_currentNode = m_path[m_currentIndex + 1];
-		//	m_path.clear();
-		//}
 	}
 }
 
@@ -123,12 +108,9 @@ void PathAgent::Draw()
 				m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y, // Node i+1's position
 				raylib::Color::Black());
 
-			// For testing
-				//-----------------------------------------------------------------------------------------------------
 			raylib::Color textColor = raylib::Color::Black();
 			std::string text = std::to_string(int(m_path[i + 1]->m_gScore));
 			textColor.DrawText(text, m_path[i + 1]->m_position.x, m_path[i + 1]->m_position.y - 10, 10);
-			//-----------------------------------------------------------------------------------------------------
 		}
 	}
 }

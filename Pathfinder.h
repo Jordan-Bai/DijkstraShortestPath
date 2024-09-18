@@ -30,9 +30,6 @@ struct Node
 	glm::vec2 m_position;
 	std::vector<Edge> m_connections; // List of paths to other nodes
 
-	// FOR TESTING ONLY:
-	std::string m_id;
-
 	int m_tileCost;
 
 	// Used for search:
@@ -64,19 +61,6 @@ struct Node
 
 		m_connections.push_back(Edge(other, cost));
 	}
-
-	bool operator<(Node& other)
-	{
-		return m_gScore < other.m_gScore;
-	}
-	bool operator>(Node& other)
-	{
-		return m_gScore > other.m_gScore;
-	}
-	bool operator==(Node& other)
-	{
-		return m_gScore == other.m_gScore;
-	}
 };
 
 class NodeMap
@@ -92,8 +76,8 @@ public:
 	void Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize); // Creates a Node map from a vector of strings
 	void Initialise(std::string fileName, glm::vec2 screenSize); // Creates a Node map from a text file
 
-	Node* GetNode(int x, int y);
-	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
+	Node* GetNode(int x, int y) const;
+	Node* GetNearestNode(int x, int y) const; // Gets the node from a screen position
 
 	void Draw();
 };

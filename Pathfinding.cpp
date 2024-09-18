@@ -9,8 +9,6 @@
 
 void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize)
 {
-	std::cout << "Initialising map (TEST)" << std::endl;
-
 	m_height = asciiMap.size(); // The number of strings in the vector, aka the number of lines
 	m_width = asciiMap[0].size(); // The number of characters in this string (assuming it's the same for each line)
 
@@ -55,13 +53,6 @@ void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize
 				{
 					m_nodes[x + (y * m_width)]->m_tileCost = 1; 
 				}
-
-				// FOR TESTING
-				//-----------------------------------------------------------------------------------------------------
-				char letter = 65 + x; // Corresponds to letters on the ascii table
-				std::string id = letter + std::to_string(y);
-				m_nodes[x + (y * m_width)]->m_id = id;
-				//-----------------------------------------------------------------------------------------------------
 			}
 			else
 			{
@@ -119,7 +110,7 @@ void NodeMap::Initialise(std::string fileName, glm::vec2 screenSize)
 	// since we need to actually create m_nodes
 }
 
-Node* NodeMap::GetNode(int x, int y)
+Node* NodeMap::GetNode(int x, int y) const
 {
 	if (x < 0 || x >= m_width || y < 0 || y >= m_height)
 	{
@@ -128,7 +119,7 @@ Node* NodeMap::GetNode(int x, int y)
 	return m_nodes[x + (y * m_width)];
 }
 
-Node* NodeMap::GetNearestNode(int x, int y)
+Node* NodeMap::GetNearestNode(int x, int y) const
 {
 	int xCell = x / m_tileSize;
 	int yCell = y / m_tileSize;
@@ -167,16 +158,10 @@ void NodeMap::Draw()
 					glm::vec2 distance = neighbour->m_position - node->m_position;
 					glm::vec2 midPoint = node->m_position + (distance * 0.5f);
 
-					DrawLine(node->m_position.x, node->m_position.y,				// This node's position (start of the line)
-						midPoint.x, midPoint.y,			// Neighbour's position (end of the line)
+					DrawLine(node->m_position.x, node->m_position.y,	// This node's position (start of the line)
+						midPoint.x, midPoint.y,							// Neighbour's position (end of the line)
 						lineColor);
 				}
-
-				// For testing
-				//-----------------------------------------------------------------------------------------------------
-				raylib::Color textColor = raylib::Color::Gray();
-				textColor.DrawText(node->m_id, node->m_position.x, node->m_position.y, 10);
-				//-----------------------------------------------------------------------------------------------------
 			}
 		}
 	}
@@ -199,7 +184,7 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 	startNode->m_previousNode = nullptr;
 	endNode->m_previousNode = nullptr;
 
-	std::vector<Node*> openList; // List of nodes to be expanded (we will be treating this vector) as a heap
+	std::vector<Node*> openList; // List of nodes to be expanded (we will be treating this vector as a heap)
 	std::vector<Node*> closedList; // List of nodes that have already been passed
 
 	openList.push_back(startNode);
