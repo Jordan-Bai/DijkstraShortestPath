@@ -53,6 +53,7 @@ int main() {
 
     // Create enemies
     MeleeAttack attack(&myPlayer, 1.25f);
+    RangedAttack shoot(&myPlayer);
     Fleeing flee(&myPlayer);
 
     HPCondition lowHealth(2, true);
@@ -63,7 +64,7 @@ int main() {
     FiniteStateMachine fsm1(&attack);
     FiniteStateMachine fsm2(&attack);
 
-    Agent enemy1(&map, &fsm1);
+    Agent enemy1(&map, &shoot);
     enemy1.SetNode(map.GetNode(16, 1));
     enemy1.SetSpeed(512);
     enemy1.SetMaxMove(6);
@@ -82,11 +83,19 @@ int main() {
     enemy3.SetMaxMove(3);
     enemy3.SetHealth(3);
 
+    // TESTING
+    //--------------------------------------------------------------------------------------
+    //LineOfSight los(&myPlayer);
+    //std::cout << los.Evaluate(map.GetNode(1, 7)) << std::endl;
+    //std::cout << los.Evaluate(map.GetNode(2, 1)) << std::endl;
+    //std::cout << los.Evaluate(map.GetNode(2, 3)) << std::endl;
+    //--------------------------------------------------------------------------------------
+
     // Add agents to turn controller
     TurnController tc(&myPlayer);
     tc.AddAgent(&enemy1);
-    tc.AddAgent(&enemy2);
-    tc.AddAgent(&enemy3);
+    //tc.AddAgent(&enemy2);
+    //tc.AddAgent(&enemy3);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------

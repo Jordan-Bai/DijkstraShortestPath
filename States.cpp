@@ -137,7 +137,7 @@ MeleeAttack::MeleeAttack(Agent* target, float range)
 
 void MeleeAttack::Enter(Agent* agent)
 {
-    agent->SetColour({ 0, 0, 255, 255 }); // Make agent blue when attacking
+    agent->SetColour({ 0, 0, 255, 255 }); // Make agent blue 
 }
 
 void MeleeAttack::Update(Agent* agent, float deltaTime)
@@ -200,6 +200,53 @@ void MeleeAttack::Attack(Agent* agent)
     }
     agent->FinishTurn();
 }
+
+// Ranged Chase
+RangedChase::RangedChase(Agent* target)
+	: m_los(target)
+{
+}
+
+void RangedChase::Enter(Agent* agent)
+{
+    agent->SetColour({ 0, 255, 0, 255 }); // Make agent green
+}
+
+void RangedChase::Update(Agent* agent, float deltaTime)
+{
+    if (agent->PathComplete()) // If the agent isn't moving
+    {
+        if (agent->GetMovesLeft() > 0) // If they still have movement left, move
+        {
+            std::vector<Node*> path = BestPath(agent, &m_los);
+            agent->FollowPath(path);
+            agent->StopMovement(); // FOR TESTING
+        }
+        else // Otherwise, finish turn
+        {
+            agent->FinishTurn();
+        }
+    }
+}
+
+
+// Ranged Attack
+RangedAttack::RangedAttack(Agent* target)
+	:m_los(target)
+{
+}
+
+void RangedAttack::Enter(Agent* agent)
+{
+	
+}
+
+void RangedAttack::Update(Agent* agent, float deltaTime)
+{
+    std::cout << "SHOOT" << std::endl;
+    agent->FinishTurn();
+}
+
 
 // Fleeing
 Fleeing::Fleeing(Agent* target)

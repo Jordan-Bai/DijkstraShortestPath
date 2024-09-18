@@ -83,6 +83,28 @@ public:
 	void Attack(Agent* agent);
 };
 
+class RangedChase : public State
+{
+	LineOfSight m_los;
+
+public:
+	RangedChase(Agent* target);
+
+	void Enter(Agent* agent) override;
+	void Update(Agent* agent, float deltaTime) override;
+};
+
+class RangedAttack : public State
+{
+	LineOfSight m_los;
+
+public:
+	RangedAttack(Agent* target);
+
+	void Enter(Agent* agent) override;
+	void Update(Agent* agent, float deltaTime) override;
+};
+
 class Fleeing : public State
 {
 	FleeParam m_fleeParam;

@@ -31,3 +31,13 @@ public:
 
 	bool IsTrue(Agent* agent) override;
 };
+
+class LineOfSightCon : public Condition
+{
+	Agent* m_target; // The target whose distance we're finding
+
+public:
+	LineOfSightCon(Agent* target);
+
+	bool IsTrue(Agent* agent) override;
+};

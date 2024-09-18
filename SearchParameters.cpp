@@ -3,6 +3,12 @@
 #include <algorithm> // For std::find & heap operations
 #include "Agent.h"
 
+float SearchParam::GetCost(Edge* edge) // Search parameters won't apply any changes to the edge cost by default
+{
+	return edge->m_cost;
+}
+
+
 FleeParam::FleeParam(Agent* target)
 	: m_target(target)
 {
@@ -26,6 +32,88 @@ float FleeParam::GetCost(Edge* edge)
 		}
 	}
 	return cost;
+}
+
+
+LineOfSight::LineOfSight(Agent* target)
+	: m_target(target)
+{
+}
+
+float LineOfSight::Evaluate(Node* node)
+{
+	if (node->m_position.x == m_target->GetPosition().x) // If they're on the same x axis (line of sight vertically)
+	{
+		float tileSize = m_target->GetMap()->GetTileSize();
+		int column = node->m_position.x / tileSize;
+		int nodeRow = node->m_position.y / tileSize;
+		int targetRow = m_target->GetPosition().y / tileSize;
+
+		if (nodeRow < targetRow) // If the node is above the target
+		{
+			for (int i = nodeRow; i < targetRow; i++) // Check each spot between the node and the target 
+			{
+				Node* node = m_target->GetMap()->GetNode(column, i);
+				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
+				{
+					return 0;
+				}
+			}
+			// If the for loop didn't return anything, there must be line of sight
+			return 1;
+		}
+		else // If the node is below the target
+		{
+			for (int i = nodeRow; i > targetRow; i--) // Check each spot between the node and the target 
+			{
+				Node* node = m_target->GetMap()->GetNode(column, i);
+				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
+				{
+					return 0;
+				}
+			}
+			// If the for loop didn't return anything, there must be line of sight
+			return 1;
+		}
+	}
+	else if (node->m_position.y == m_target->GetPosition().y) // If they're on the same y axis (line of sight horizontally)
+	{
+		float tileSize = m_target->GetMap()->GetTileSize();
+		int row = node->m_position.y / tileSize;
+		int nodeColumn = node->m_position.x / tileSize;
+		int targetColumn = m_target->GetPosition().x / tileSize;
+
+		if (nodeColumn < targetColumn) // If the node is left of the target
+		{
+			for (int i = nodeColumn; i < targetColumn; i++) // Check each spot between the node and the target 
+			{
+				Node* node = m_target->GetMap()->GetNode(i, row);
+				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
+				{
+					return 0;
+				}
+			}
+			// If the for loop didn't return anything, there must be line of sight
+			return 1;
+		}
+		else // If the node is right of the target
+		{
+			for (int i = nodeColumn; i > targetColumn; i--) // Check each spot between the node and the target 
+			{
+				Node* node = m_target->GetMap()->GetNode(i, row);
+				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
+				{
+					return 0;
+				}
+			}
+			// If the for loop didn't return anything, there must be line of sight
+			return 1;
+		}
+	}
+	else // No line of sight
+	{
+		return 0;
+	}
 }
 
 
