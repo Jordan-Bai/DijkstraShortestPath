@@ -81,15 +81,23 @@ void TurnController::Update(float deltaTime)
 				StartPlayerTurn();
 				return;
 			}
-			else // otherwise, start the next agent's turn
-			{
-				m_agents[m_agentIndex]->StartTurn();
-			}
+
+			// Otherwise, start the next agent's turn
+			m_agents[m_agentIndex]->StartTurn();
 		}
+
 		m_agents[m_agentIndex]->Update(deltaTime);
+
 		if (m_agents[m_agentIndex]->TurnComplete()) // If the agent finished its turn, move on to the next one
 		{
 			m_agentIndex++;
+			// FOR TESTING
+			//-----------------------------------------------------------------------------------------------------
+			if (m_agentIndex == 1)
+			{
+				std::cout << "a" << std::endl;
+			}
+			//-----------------------------------------------------------------------------------------------------
 			if (m_agentIndex >= m_agents.size()) // If there are no more agents in the list, the enemy turn is over
 			{
 				StartPlayerTurn();
@@ -124,7 +132,10 @@ void TurnController::Draw()
 	m_player->Draw();
 	for (Agent* a : m_agents)
 	{
-		a->Draw();
+		if (!a->IsDead()) // If the agent isn't dead (just in case agent dies but hasn't been removed from the list yet)
+		{
+			a->Draw();
+		}
 	}
 
 	if (m_isPlayerTurn)

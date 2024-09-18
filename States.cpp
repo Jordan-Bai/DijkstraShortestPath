@@ -141,6 +141,11 @@ MeleeAttack::MeleeAttack(Agent* target, float range)
 {
 }
 
+void MeleeAttack::Enter(Agent* agent)
+{
+    agent->SetColour({ 0, 0, 255, 255 }); // Make agent blue when attacking
+}
+
 void MeleeAttack::Update(Agent* agent, float deltaTime)
 {
     if (agent->PathComplete()) // If they're not moving
@@ -179,9 +184,14 @@ void MeleeAttack::Move(Agent* agent)
     //--------------------------------------------------------------------------------------
     Node* furthestNode = nullptr;
     // Repeat for each node in range that doesn't have another agent already in it
-    for (int i = 0; i < desiredPath.size() && desiredPath[i]->m_gScore < maxMoveScaled && desiredPath[i]->m_occupant == nullptr; i++)
+    for (int i = 0; i < desiredPath.size() && desiredPath[i]->m_gScore < maxMoveScaled; i++)
     {
-        furthestNode = desiredPath[i]; // If the agent can reach this node, set it as the new target
+        // If the node is occupied, don't set it as the furthest node, but continue the loop (means agents can pass through an occupied node on their path,
+        // but will never try to stop at an occupied node)
+        if (desiredPath[i]->m_occupant == nullptr)
+        {
+            furthestNode = desiredPath[i]; // If the agent can reach this node, set it as the new target
+        }
     }
     agent->GoTo(furthestNode);
     //--------------------------------------------------------------------------------------
@@ -202,11 +212,28 @@ void MeleeAttack::Attack(Agent* agent)
 
 // Fleeing
 Fleeing::Fleeing(Agent* target)
-    : m_target(target)
+    : m_fleeParam(target)
 {
+}
+
+void Fleeing::Enter(Agent* agent)
+{
+    agent->SetColour({ 255, 128, 0, 255 }); // Make agent orange when fleeing
 }
 
 void Fleeing::Update(Agent* agent, float deltaTime)
 {
-
+    if (agent->PathComplete()) // If the agent isn't moving
+    {
+        if (agent->GetMovesLeft() > 0) // If they still have movement left, move
+        {
+            Node* target = BestTarget(agent, &m_fleeParam);
+            agent->GoTo(target);
+            agent->StopMovement(); // FOR TESTING
+        }
+        else // Otherwise, finish turn
+        {
+            agent->FinishTurn();
+        }
+    }
 }

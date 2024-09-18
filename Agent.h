@@ -52,6 +52,7 @@ public:
 	glm::vec2 GetPosition() const;
 	int GetMaxMove() const;
 	int GetMovesLeft() const;
+	int GetHealth() const;
 	int GetAttack() const;
 
 	void Update(float deltaTime);

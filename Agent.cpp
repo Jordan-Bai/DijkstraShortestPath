@@ -174,6 +174,11 @@ int Agent::GetMovesLeft() const
 	return m_movesLeft;
 }
 
+int Agent::GetHealth() const
+{
+	return m_health;
+}
+
 int Agent::GetAttack() const
 {
 	return m_atk;

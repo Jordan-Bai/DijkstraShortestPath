@@ -17,6 +17,7 @@ class DistanceCondition : public Condition
 
 public:
 	DistanceCondition(Agent* target, float distance, bool lessThanComp);
+
 	bool IsTrue(Agent* agent) override;
 };
 
@@ -29,5 +30,23 @@ public:
 class NewTurn : public Condition
 {
 public:
+	bool IsTrue(Agent* agent) override;
+};
+
+class LowHealth : public Condition
+{
+	int m_hpThreshold;
+public:
+	LowHealth(int hpThreshold);
+
+	bool IsTrue(Agent* agent) override;
+};
+
+class HighHealth : public Condition
+{
+	int m_hpThreshold;
+public:
+	HighHealth(int hpThreshold);
+
 	bool IsTrue(Agent* agent) override;
 };

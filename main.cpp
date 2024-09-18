@@ -49,28 +49,36 @@ int main() {
     agent1.SetNode(start);
     agent1.SetSpeed(256);
     agent1.SetColour({ 0, 0, 0, 255 });
-    agent1.SetMaxMove(15);
+    agent1.SetMaxMove(10);
     agent1.SetHealth(10);
 
     // CREATING ENEMIES
     //--------------------------------------------------------------------------------------
     MeleeAttack attack(&agent1, 1.25f);
+    Fleeing flee(&agent1);
 
-    FiniteStateMachine fsm(&attack); // Not actually doing anything rn, fix later
+    LowHealth hurt(1);
+    HighHealth healthy(1);
+    attack.AddTransition(&hurt, &flee);
+    flee.AddTransition(&healthy, &attack);
 
-    Agent enemy1(&map, &attack);
+    FiniteStateMachine fsm1(&attack);
+    FiniteStateMachine fsm2(&attack);
+
+    Agent enemy1(&map, &fsm1);
     enemy1.SetNode(map.GetNode(16, 1));
     enemy1.SetSpeed(512);
     enemy1.SetMaxMove(6);
     enemy1.SetHealth(3);
 
-    Agent enemy2(&map, &fsm);
+    Agent enemy2(&map, &attack); // Will oly ever attack, never flee
     enemy2.SetNode(map.GetNode(16, 13));
     enemy2.SetSpeed(512);
     enemy2.SetMaxMove(6);
     enemy2.SetHealth(3);
+    enemy2.SetColour({ 255, 0, 0, 255 });
 
-    Agent enemy3(&map, &fsm);
+    Agent enemy3(&map, &fsm2);
     enemy3.SetNode(map.GetNode(1, 13));
     enemy3.SetSpeed(512);
     enemy3.SetMaxMove(6);

@@ -2,6 +2,7 @@
 
 #include "Pathfinder.h"
 #include "Conditions.h"
+#include "SearchParameters.h"
 
 //class Agent; // Need to declare agent here, so state & agent can reference each other
 class State; // Need to declare state here, so state & transition can reference each other
@@ -80,6 +81,7 @@ class MeleeAttack : public State
 public:
 	MeleeAttack(Agent* target, float range);
 
+	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
 
 	void Move(Agent* agent);
@@ -88,10 +90,11 @@ public:
 
 class Fleeing : public State
 {
-	Agent* m_target;
+	FleeParam m_fleeParam;
 
 public:
 	Fleeing(Agent* target);
 
+	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
 };

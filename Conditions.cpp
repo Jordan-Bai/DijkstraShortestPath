@@ -22,3 +22,23 @@ bool NewTurn::IsTrue(Agent* agent)
 {
 	return !agent->TurnComplete();
 }
+
+LowHealth::LowHealth(int hpThreshold)
+	: m_hpThreshold(hpThreshold)
+{
+}
+
+bool LowHealth::IsTrue(Agent* agent)
+{
+	return (agent->GetHealth() <= m_hpThreshold);
+}
+
+HighHealth::HighHealth(int hpThreshold)
+	: m_hpThreshold(hpThreshold)
+{
+}
+
+bool HighHealth::IsTrue(Agent* agent)
+{
+	return (agent->GetHealth() > m_hpThreshold);
+}
