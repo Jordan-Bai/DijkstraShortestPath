@@ -20,10 +20,7 @@ class Agent
 	int m_atk;
 
 public:
-	//Agent(NodeMap* map, State* state);
-	//Agent(NodeMap* map, State* state, Color colour);
 	Agent(NodeMap* map, Behaviour* behaviour);
-	//~Agent();
 
 	void SetSpeed(float speed);
 	void SetNode(Node* node);
@@ -42,8 +39,8 @@ public:
 
 	void StartTurn();
 	void FinishTurn();
-	bool TurnComplete();
-	bool PathComplete();
+	bool TurnComplete() const;
+	bool PathComplete() const;
 
 	void TakeDamage(int damage);
 	bool IsDead();
@@ -51,8 +48,11 @@ public:
 	NodeMap* GetMap() const;
 	Node* GetCurrentNode() const;
 	glm::vec2 GetPosition() const;
+
+	int GetMaxMove() const;
 	int GetMaxMoveScaled() const;
 	int GetMovesLeft() const;
+
 	int GetHealth() const;
 	int GetAttack() const;
 

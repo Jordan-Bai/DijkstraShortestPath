@@ -12,10 +12,10 @@ class PathAgent
 	Node* m_currentNode;
 
 	glm::vec2 m_position;
-	float m_speed = 1; // Speed is 1 by default
+	float m_speed;
 
 public:
-	PathAgent() = default;
+	PathAgent();
 	PathAgent(Node* node, float speed);
 
 	void GoToNode(Node* node, int maxMoveScaled);
@@ -28,7 +28,7 @@ public:
 	void SpeedUp();
 	void SlowDown();
 
-	bool OnPath();
+	bool OnPath() const;
 
 	void Update(float deltaTime);
 	void Draw(Color colour);

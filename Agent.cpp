@@ -1,30 +1,11 @@
 #include "Agent.h"
 
-//Agent::Agent(NodeMap* map, State* state)
-//	: m_state(state), m_map(map), m_colour({255, 0, 0, 255})
-//{
-//	PathAgent pathAgent;
-//	m_pathAgent = pathAgent;
-//}
-//
-//Agent::Agent(NodeMap* map, State* state, Color colour)
-//	:m_map(map), m_state(state), m_colour(colour)
-//{
-//	PathAgent pathAgent;
-//	m_pathAgent = pathAgent;
-//}
-
 Agent::Agent(NodeMap* map, Behaviour* behaviour)
 	: m_map(map), m_behaviour(behaviour), m_colour({ 0, 0, 255, 255 }), m_maxMove(1), m_health(1), m_atk(1)
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;
 }
-
-//Agent::~Agent()
-//{
-//	delete m_state; // Why?
-//}
 
 void Agent::SetSpeed(float speed)
 {
@@ -93,10 +74,6 @@ void Agent::GoTo(Node* node)
 		{
 			int gScoreScaled = node->m_gScore / m_map->GetTileSize();
 			m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
-
-			// Update which nodes are occupied (COULD CAUSE ISSUES IF IT DOESN'T REACH THE TARGET)
-			//m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Set the current node as unoccupied 
-			//node->m_occupant = this; // Set self as occupying the target node
 		}
 	}
 }
@@ -106,7 +83,7 @@ void Agent::FollowPath(std::vector<Node*> path)
 	m_pathAgent.FollowPath(path);
 	if (m_pathAgent.OnPath()) // If there was a valid path to the node
 	{
-		int gScoreScaled = path[path.size() - 1]->m_gScore / m_map->GetTileSize();
+		int gScoreScaled = path[path.size() - 1]->m_gScore / m_map->GetTileSize(); // Get the gScore of the last node
 		m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
 	}
 }
@@ -134,12 +111,12 @@ void Agent::FinishTurn()
 	}
 }
 
-bool Agent::TurnComplete()
+bool Agent::TurnComplete() const
 {
 	return m_turnComplete;
 }
 
-bool Agent::PathComplete()
+bool Agent::PathComplete() const
 {
 	return !m_pathAgent.OnPath();
 }
@@ -175,6 +152,12 @@ glm::vec2 Agent::GetPosition() const
 	return m_pathAgent.GetPosition();
 }
 
+
+int Agent::GetMaxMove() const
+{
+	return m_maxMove;
+}
+
 int Agent::GetMaxMoveScaled() const
 {
 	return m_maxMove * m_map->GetTileSize();
@@ -184,6 +167,7 @@ int Agent::GetMovesLeft() const
 {
 	return m_movesLeft;
 }
+
 
 int Agent::GetHealth() const
 {
@@ -205,8 +189,6 @@ void Agent::Update(float deltaTime)
 	{
 		m_behaviour->Update(this, deltaTime);
 	}
-
-	Node* lastNode = m_pathAgent.GetCurrentNode();
 
 	// Move the agent
 	m_pathAgent.Update(deltaTime);

@@ -125,23 +125,23 @@ void NodeMap::Initialise(std::string fileName, glm::vec2 screenSize)
 	// since we need to actually create m_nodes
 }
 
-Node* NodeMap::GetNode(int x, int y)
+Node* NodeMap::GetNode(int column, int row) const
 {
-	if (x < 0 || x >= m_width || y < 0 || y >= m_height)
+	if (column < 0 || column >= m_width || row < 0 || row >= m_height)
 	{
 		return nullptr; // If the tile is outside of the map, return null
 	}
-	return m_nodes[x + (y * m_width)];
+	return m_nodes[column + (row * m_width)];
 }
 
-Node* NodeMap::GetNearestNode(int x, int y)
+Node* NodeMap::GetNearestNode(int x, int y) const
 {
 	int xCell = x / m_tileSize;
 	int yCell = y / m_tileSize;
 	return GetNode(xCell, yCell);
 }
 
-Node* NodeMap::GetRandomNode()
+Node* NodeMap::GetRandomNode() const
 {
 	Node* node = nullptr;
 	while (node == nullptr)
@@ -198,6 +198,7 @@ void NodeMap::Draw()
 	}
 }
 
+
 std::vector<Node*> PathSearch(Node* startNode, Node* endNode, int maxMoveScaled)
 {
 	if (startNode == nullptr || endNode == nullptr)
@@ -244,14 +245,11 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode, int maxMoveScaled)
 			Node* targetNode = currentNode->m_connections[i].m_target;
 
 			// Check if edge can be crossed
-			//-----------------------------------------------------------------------------------------------------
-			// If the cost of moving across this edge is greater than the agent's max movement, the agent will never be able to cross this tile,
-			// so don't check it
 			if (currentNode->m_connections[i].m_cost > maxMoveScaled)
 			{
+				// If the cost of moving across this edge is greater than the agent's max movement, the agent will never be able to cross this tile
 				continue;
 			}
-			//-----------------------------------------------------------------------------------------------------
 
 			if (std::find(closedList.begin(), closedList.end(), targetNode) == closedList.end()) // Check that the target is not in the closed list
 			{

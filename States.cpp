@@ -19,17 +19,10 @@ void State::AddTransition(Condition* condition, State* targetState)
     m_transitions.push_back(newTransition);
 }
 
+// By default, don't do anything on enter or exit
 void State::Enter(Agent* agent)
 {
 }
-
-// REMOVE LATER
-//--------------------------------------------------------------------------------------
-void State::Update(Agent* agent, float deltaTime)
-{
-	
-}
-//--------------------------------------------------------------------------------------
 
 void State::Exit(Agent* agent)
 {
@@ -97,7 +90,7 @@ void Follow::Update(Agent* agent, float deltaTime)
 }
 
 // Player
-void PlayerIdle::Update(Agent* agent, float deltaTime)
+void Player::Update(Agent* agent, float deltaTime)
 {
     if (IsMouseButtonPressed(0))
     {
@@ -121,7 +114,7 @@ void PlayerIdle::Update(Agent* agent, float deltaTime)
     }
 }
 
-void PlayerIdle::Attack(Agent* agent)
+void Player::Attack(Agent* agent)
 {
     // Check each tile next to the player
     std::vector<Edge> neighbours = agent->GetCurrentNode()->m_connections;
@@ -204,7 +197,6 @@ void MeleeAttack::Attack(Agent* agent)
     if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
     {
         m_target->TakeDamage(agent->GetAttack());
-        //std::cout << "BAM" << std::endl;
     }
     agent->FinishTurn();
 }
@@ -226,8 +218,6 @@ void Fleeing::Update(Agent* agent, float deltaTime)
     {
         if (agent->GetMovesLeft() > 0) // If they still have movement left, move
         {
-            //Node* target = BestTarget(agent, &m_fleeParam);
-            //agent->GoTo(target);
             std::vector<Node*> path = BestPath(agent, &m_fleeParam);
             agent->FollowPath(path);
             agent->StopMovement(); // FOR TESTING

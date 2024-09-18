@@ -10,7 +10,7 @@ struct Node; // Need to declare Node here, so Node & Edge can reference each oth
 struct Edge
 {
 	Node* m_target;
-	float m_cost; // Normally just how long it takes to get to the target node
+	float m_cost; // Normally just how far away the target node is
 
 	Edge()
 	{
@@ -37,7 +37,8 @@ struct Node
 	float m_hScore; // Represents the cost of the fastest possible path to the end
 	float m_fScore; // gScore + hScore
 	Node* m_previousNode;
-	Agent* m_occupant = nullptr; // An agent currently in the tile
+
+	Agent* m_occupant = nullptr; // An agent currently in the tile (for making sure only 1 agent occupies a tile at a time
 
 	Node(float x, float y)
 	{
@@ -58,31 +59,18 @@ struct Node
 	{
 		if (other == nullptr)
 		{
-			std::cout << "UH OH" << std::endl;
+			std::cout << "Invalid connection" << std::endl;
 			return;
 		}
 
 		m_connections.push_back(Edge(other, cost));
-	}
-
-	bool operator<(Node& other)
-	{
-		return m_gScore < other.m_gScore;
-	}
-	bool operator>(Node& other)
-	{
-		return m_gScore > other.m_gScore;
-	}
-	bool operator==(Node& other)
-	{
-		return m_gScore == other.m_gScore;
 	}
 };
 
 class NodeMap
 {
 	int m_width, m_height;
-	float m_tileSize; // How big do we want each tile to be?
+	float m_tileSize;
 
 	Node** m_nodes;
 
@@ -92,15 +80,13 @@ public:
 	void Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize); // Creates a Node map from a vector of strings
 	void Initialise(std::string fileName, glm::vec2 screenSize); // Creates a Node map from a text file
 
-	Node* GetNode(int x, int y);
-	Node* GetNearestNode(int x, int y); // Gets the node from a screen position
-	Node* GetRandomNode();
+	Node* GetNode(int column, int row) const; // Gets the node from a row & column
+	Node* GetNearestNode(int x, int y) const; // Gets the node from a screen position
+	Node* GetRandomNode() const;
 	float GetTileSize() const;
 
 	void Draw();
 };
-
-std::vector<Node*> PathSearch(Node* startNode, Node* endNode, int maxMoveScaled);
 
 inline bool greaterComp(const Node* node1, const Node* node2) // Need to use this as the comparison because otherwise we couldn't compare pointers
 {
@@ -112,3 +98,5 @@ inline float GetHScore(const Node* startNode, const Node* endNode)
 	glm::vec2 distance = endNode->m_position - startNode->m_position;
 	return glm::length(distance);
 }
+
+std::vector<Node*> PathSearch(Node* startNode, Node* endNode, int maxMoveScaled); // Declare it here so it can be referenced easier

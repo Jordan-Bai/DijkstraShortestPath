@@ -10,7 +10,7 @@ FleeParam::FleeParam(Agent* target)
 
 float FleeParam::Evaluate(Node* node)
 {
-	// Just return distance from the target
+	// Just return distance from the target (the higher the distance, the better)
 	glm::vec2 distance = m_target->GetPosition() - node->m_position;
 	return glm::length(distance);
 }

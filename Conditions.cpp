@@ -13,32 +13,13 @@ bool DistanceCondition::IsTrue(Agent* agent)
 	return (lessThan == m_isLessThan);
 }
 
-bool FinishedMoving::IsTrue(Agent* agent)
-{
-	return agent->PathComplete();
-}
-
-bool NewTurn::IsTrue(Agent* agent)
-{
-	return !agent->TurnComplete();
-}
-
-LowHealth::LowHealth(int hpThreshold)
-	: m_hpThreshold(hpThreshold)
+HPCondition::HPCondition(int hpThreshold, bool lessThanComp)
+	: m_hpThreshold(hpThreshold), m_isLessThan(lessThanComp)
 {
 }
 
-bool LowHealth::IsTrue(Agent* agent)
+bool HPCondition::IsTrue(Agent* agent)
 {
-	return (agent->GetHealth() <= m_hpThreshold);
-}
-
-HighHealth::HighHealth(int hpThreshold)
-	: m_hpThreshold(hpThreshold)
-{
-}
-
-bool HighHealth::IsTrue(Agent* agent)
-{
-	return (agent->GetHealth() > m_hpThreshold);
+	bool lessThan = (agent->GetHealth() < m_hpThreshold);
+	return lessThan == m_isLessThan;
 }

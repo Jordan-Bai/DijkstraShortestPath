@@ -15,11 +15,6 @@ void TurnController::AddAgent(Agent* agent)
 	}
 }
 
-void TurnController::RemoveAgent(Agent* agent)
-{
-	
-}
-
 void TurnController::StartPlayerTurn()
 {
 	m_isPlayerTurn = true;
@@ -54,16 +49,13 @@ void TurnController::Update(float deltaTime)
 	if (m_isPlayerTurn)
 	{
 		m_player->Update(deltaTime);
-		// DO PLAYER TURN LOGIC
 		
-		// Player inputs
-		//--------------------------------------------------------------------------------------
+		// Inputs for ending player turn
 		if ((IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) 
 			&& m_player->PathComplete()) // Player isn't still moving
 		{
 			StartEnemyTurn(); // End the player's turn
 		}
-		//--------------------------------------------------------------------------------------
 
 		if (m_player->TurnComplete())
 		{
@@ -91,13 +83,6 @@ void TurnController::Update(float deltaTime)
 		if (m_agents[m_agentIndex]->TurnComplete()) // If the agent finished its turn, move on to the next one
 		{
 			m_agentIndex++;
-			// FOR TESTING
-			//-----------------------------------------------------------------------------------------------------
-			if (m_agentIndex == 1)
-			{
-				std::cout << "a" << std::endl;
-			}
-			//-----------------------------------------------------------------------------------------------------
 			if (m_agentIndex >= m_agents.size()) // If there are no more agents in the list, the enemy turn is over
 			{
 				StartPlayerTurn();
@@ -112,17 +97,17 @@ void TurnController::Update(float deltaTime)
 	if (IsKeyPressed(KEY_W))
 	{
 		m_player->SpeedUp();
-		for (int i = 0; i < m_agents.size(); i++)
+		for (Agent* a : m_agents)
 		{
-			m_agents[i]->SpeedUp();
+			a->SpeedUp();
 		}
 	}
 	if (IsKeyPressed(KEY_S))
 	{
 		m_player->SlowDown();
-		for (int i = 0; i < m_agents.size(); i++)
+		for (Agent* a : m_agents)
 		{
-			m_agents[i]->SlowDown();
+			a->SlowDown();
 		}
 	}
 }
@@ -132,13 +117,13 @@ void TurnController::Draw()
 	m_player->Draw();
 	for (Agent* a : m_agents)
 	{
-		if (!a->IsDead()) // If the agent isn't dead (just in case agent dies but hasn't been removed from the list yet)
+		if (!a->IsDead()) // If the agent isn't dead (just in case an agent dies but hasn't been removed from the list yet)
 		{
 			a->Draw();
 		}
 	}
 
-	if (m_isPlayerTurn)
+	if (m_isPlayerTurn && m_player->PathComplete()) // If it's the player's turn & they're not moving
 	{
 		// Get the tile the player is hovering over
 		Vector2 mousePos = GetMousePosition();
@@ -147,7 +132,7 @@ void TurnController::Draw()
 		{
 			// Find the path to that node
 			m_hoveredTile = hovered;
-			if (!hovered)
+			if (!hovered) // If hovered is null, don't do a path search, just make the path empty
 			{
 				m_hoveredPath = {};
 			}
@@ -157,7 +142,7 @@ void TurnController::Draw()
 			}
 		}
 
-		if (hovered) // If the cell they're hovering over isn't a wall
+		if (m_hoveredTile) // If the cell they're hovering over isn't a wall
 		{
 			float tileSize = m_player->GetMap()->GetTileSize();
 			// Draw the path (if it exists)
@@ -182,7 +167,7 @@ void TurnController::Draw()
 			}
 			else // If there's no path to the hovered tile, just draw it in red to show it's not reachable
 			{
-				DrawRectangle(hovered->m_position.x - (tileSize / 2), hovered->m_position.y - (tileSize / 2),
+				DrawRectangle(m_hoveredTile->m_position.x - (tileSize / 2), m_hoveredTile->m_position.y - (tileSize / 2),
 					tileSize - 1, tileSize - 1, { 255, 0, 0, 128 });
 			}
 		}

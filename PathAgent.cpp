@@ -2,10 +2,16 @@
 
 #include <raylib.h>
 
+PathAgent::PathAgent()
+	: m_speed(1) // Speed is 1 by default to stop agents from being unable to move
+{
+}
+
 PathAgent::PathAgent(Node* node, float speed)
 	: m_currentNode(node), m_position(node->m_position), m_speed(speed)
 {
 }
+
 
 void PathAgent::GoToNode(Node* node, int maxMoveScaled)
 {
@@ -39,6 +45,7 @@ glm::vec2 PathAgent::GetPosition() const
 	return m_position;
 }
 
+
 void PathAgent::SetSpeed(float speed)
 {
 	m_speed = speed;
@@ -54,10 +61,12 @@ void PathAgent::SlowDown()
 	m_speed *= 0.5f;
 }
 
-bool PathAgent::OnPath()
+
+bool PathAgent::OnPath() const
 {
 	return !m_path.empty(); // Returns whether the path agent is following a path
 }
+
 
 void PathAgent::Update(float deltaTime)
 {
@@ -75,7 +84,8 @@ void PathAgent::Update(float deltaTime)
 	{
 		maxCost = targetNode->m_tileCost;
 	}
-	float actualSpeed = m_speed * deltaTime / maxCost; // Adjust it to match the cost of the tiles we're traversing
+
+	float actualSpeed = m_speed * deltaTime / maxCost; // Adjust speed to match the cost of the tiles we're traversing
 	float distance = glm::length(direction) - actualSpeed; // Accounts for overshooting the node
 
 	if (distance > 0)

@@ -21,32 +21,13 @@ public:
 	bool IsTrue(Agent* agent) override;
 };
 
-class FinishedMoving : public Condition
+class HPCondition : public Condition
 {
-public:
-	bool IsTrue(Agent* agent) override;
-};
+	int m_hpThreshold; // The HP value being compared against
+	bool m_isLessThan; // Whether this is a less-than comparision
 
-class NewTurn : public Condition
-{
 public:
-	bool IsTrue(Agent* agent) override;
-};
-
-class LowHealth : public Condition
-{
-	int m_hpThreshold;
-public:
-	LowHealth(int hpThreshold);
-
-	bool IsTrue(Agent* agent) override;
-};
-
-class HighHealth : public Condition
-{
-	int m_hpThreshold;
-public:
-	HighHealth(int hpThreshold);
+	HPCondition(int hpThreshold, bool lessThanComp);
 
 	bool IsTrue(Agent* agent) override;
 };

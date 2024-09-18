@@ -41,26 +41,24 @@ int main() {
     map.Initialise("map3.txt", glm::vec2(screenWidth, screenHeight));
 
     Node* start = map.GetNode(1, 1);
-    //PathAgent agent(start, 40);
 
-    PlayerIdle playerState;
-	//GoToPoint myGoToState;
-    Agent agent1(&map, &playerState);
-    agent1.SetNode(start);
-    agent1.SetSpeed(256);
-    agent1.SetColour({ 0, 0, 0, 255 });
-    agent1.SetMaxMove(15);
-    agent1.SetHealth(10);
+    // Create player
+    Player playerState;
+    Agent myPlayer(&map, &playerState);
+    myPlayer.SetNode(start);
+    myPlayer.SetSpeed(256);
+    myPlayer.SetColour({ 0, 0, 0, 255 });
+    myPlayer.SetMaxMove(15);
+    myPlayer.SetHealth(10);
 
-    // CREATING ENEMIES
-    //--------------------------------------------------------------------------------------
-    MeleeAttack attack(&agent1, 1.25f);
-    Fleeing flee(&agent1);
+    // Create enemies
+    MeleeAttack attack(&myPlayer, 1.25f);
+    Fleeing flee(&myPlayer);
 
-    LowHealth hurt(1);
-    HighHealth healthy(1);
-    attack.AddTransition(&hurt, &flee);
-    flee.AddTransition(&healthy, &attack);
+    HPCondition lowHealth(2, true);
+    HPCondition highHealth(2, false);
+    attack.AddTransition(&lowHealth, &flee);
+    flee.AddTransition(&highHealth, &attack);
 
     FiniteStateMachine fsm1(&attack);
     FiniteStateMachine fsm2(&attack);
@@ -83,9 +81,9 @@ int main() {
     enemy3.SetSpeed(512);
     enemy3.SetMaxMove(3);
     enemy3.SetHealth(3);
-    //--------------------------------------------------------------------------------------
 
-    TurnController tc(&agent1);
+    // Add agents to turn controller
+    TurnController tc(&myPlayer);
     tc.AddAgent(&enemy1);
     tc.AddAgent(&enemy2);
     tc.AddAgent(&enemy3);
@@ -97,8 +95,6 @@ int main() {
     while (!window.ShouldClose()) {   // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        //agent1.Update(GetFrameTime()); // Get frame time returns deltaTime
-        //agent3.Update(GetFrameTime());
         tc.Update(GetFrameTime());
         //----------------------------------------------------------------------------------
 
@@ -109,8 +105,6 @@ int main() {
             window.ClearBackground(RAYWHITE);
 
             map.Draw();
-        	//agent1.Draw();
-            //agent3.Draw();
             tc.Draw();
         }
         EndDrawing();

@@ -4,7 +4,6 @@
 #include "Conditions.h"
 #include "SearchParameters.h"
 
-//class Agent; // Need to declare agent here, so state & agent can reference each other
 class State; // Need to declare state here, so state & transition can reference each other
 
 struct Transition
@@ -14,10 +13,6 @@ struct Transition
 
 	Transition(Condition* condition, State* targetState)
 		: m_condition(condition), m_targetState(targetState) {}
-	/*~Transition()
-	{
-		delete m_condition; // BREAKS THINGS
-	}*/
 };
 
 class Behaviour // Abstract base class for states & fsm (so an agent can take a single state OR an fsm as its behaviour);
@@ -36,7 +31,7 @@ public:
 	void AddTransition(Condition* condition, State* targetState);
 
 	virtual void Enter(Agent* agent); // For any special behaviours when the state begins
-	virtual void Update(Agent* agent, float deltaTime);			// Do I need this anymore?
+	virtual void Update(Agent* agent, float deltaTime) = 0;	
 	virtual void Exit(Agent* agent); // For any special behaviours when the state ends
 };
 
@@ -65,7 +60,7 @@ public:
 	void Update(Agent* agent, float deltaTime) override;
 };
 
-class PlayerIdle : public State
+class Player : public State
 {
 public:
 	void Update(Agent* agent, float deltaTime) override;
@@ -76,7 +71,7 @@ public:
 class MeleeAttack : public State
 {
 	Agent* m_target;
-	float m_range;
+	float m_range; // How close they have to be to attack
 	
 public:
 	MeleeAttack(Agent* target, float range);
