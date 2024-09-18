@@ -198,7 +198,7 @@ void NodeMap::Draw()
 	}
 }
 
-std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
+std::vector<Node*> PathSearch(Node* startNode, Node* endNode, int maxMoveScaled)
 {
 	if (startNode == nullptr || endNode == nullptr)
 	{
@@ -235,13 +235,24 @@ std::vector<Node*> PathSearch(Node* startNode, Node* endNode)
 		// (If no comparison is provided, it uses <, which will sort the container into a max heap, but we want a min heap)
 		openList.pop_back(); // Remove the last element (the one we moved to the back, aka the current node)
 		//-----------------------------------------------------------------------------------------------------
-		
+
 		closedList.push_back(currentNode); // Add current node to closed list
 
 		// For each of the node's connections:
 		for (int i = 0; i < currentNode->m_connections.size(); i++)
 		{
 			Node* targetNode = currentNode->m_connections[i].m_target;
+
+			// Check if edge can be crossed
+			//-----------------------------------------------------------------------------------------------------
+			// If the cost of moving across this edge is greater than the agent's max movement, the agent will never be able to cross this tile,
+			// so don't check it
+			if (currentNode->m_connections[i].m_cost > maxMoveScaled)
+			{
+				continue;
+			}
+			//-----------------------------------------------------------------------------------------------------
+
 			if (std::find(closedList.begin(), closedList.end(), targetNode) == closedList.end()) // Check that the target is not in the closed list
 			{
 				float gScore = currentNode->m_gScore + currentNode->m_connections[i].m_cost;

@@ -37,6 +37,7 @@ public:
 
 	void GoTo(int x, int y);
 	void GoTo(Node* node);
+	void FollowPath(std::vector<Node*> path);
 	void StopMovement();
 
 	void StartTurn();
@@ -50,7 +51,7 @@ public:
 	NodeMap* GetMap() const;
 	Node* GetCurrentNode() const;
 	glm::vec2 GetPosition() const;
-	int GetMaxMove() const;
+	int GetMaxMoveScaled() const;
 	int GetMovesLeft() const;
 	int GetHealth() const;
 	int GetAttack() const;

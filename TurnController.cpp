@@ -143,30 +143,47 @@ void TurnController::Draw()
 		// Get the tile the player is hovering over
 		Vector2 mousePos = GetMousePosition();
 		Node* hovered = m_player->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
+		if (hovered != m_hoveredTile) // If they're hovering over a different tile, recalculate the path
+		{
+			// Find the path to that node
+			m_hoveredTile = hovered;
+			if (!hovered)
+			{
+				m_hoveredPath = {};
+			}
+			else
+			{
+				m_hoveredPath = PathSearch(m_player->GetCurrentNode(), hovered, m_player->GetMaxMoveScaled());
+			}
+		}
+
 		if (hovered) // If the cell they're hovering over isn't a wall
 		{
 			float tileSize = m_player->GetMap()->GetTileSize();
-			// Find the path to that node
-			std::vector<Node*> path = PathSearch(m_player->GetCurrentNode(), hovered);
-			// Draw the path
-			if (!path.empty())
+			// Draw the path (if it exists)
+			if (!m_hoveredPath.empty())
 			{
 				// Draw the path to the node
 				Color tileColour = {0, 0, 0, 64 };
 				float movesLeftScaled = m_player->GetMovesLeft() * m_player->GetMap()->GetTileSize(); // For checking if the tile is in range
-				for (int i = 0; i < path.size(); i++)
+				for (int i = 0; i < m_hoveredPath.size(); i++)
 				{
-					if (path[i]->m_gScore > movesLeftScaled) // If the tile is out of the player's max move distance
+					if (m_hoveredPath[i]->m_gScore > movesLeftScaled) // If the tile is out of the player's max move distance
 					{
 						tileColour = { 255, 0, 0, 64}; // Change the colour to red to show it's out of range
 					}
-					if (i == path.size() - 1) // Make tile actually being hovered over more opaque
+					if (i == m_hoveredPath.size() - 1) // Make tile actually being hovered over more opaque
 					{
 						tileColour.a = 128;
 					}
-					DrawRectangle(path[i]->m_position.x - (tileSize / 2), path[i]->m_position.y - (tileSize / 2), 
+					DrawRectangle(m_hoveredPath[i]->m_position.x - (tileSize / 2), m_hoveredPath[i]->m_position.y - (tileSize / 2),
 						tileSize - 1, tileSize - 1, tileColour);
 				}
+			}
+			else // If there's no path to the hovered tile, just draw it in red to show it's not reachable
+			{
+				DrawRectangle(hovered->m_position.x - (tileSize / 2), hovered->m_position.y - (tileSize / 2),
+					tileSize - 1, tileSize - 1, { 255, 0, 0, 128 });
 			}
 		}
 	}

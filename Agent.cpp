@@ -79,7 +79,7 @@ void Agent::GoTo(int x, int y)
 	Node* target = m_map->GetNearestNode(x, y);
 	if (target)
 	{
-		m_pathAgent.GoToNode(target);
+		GoTo(target);
 	}
 }
 
@@ -87,7 +87,8 @@ void Agent::GoTo(Node* node)
 {
 	if (node)
 	{
-		m_pathAgent.GoToNode(node);
+		float maxMoveScaled = m_maxMove * m_map->GetTileSize();
+		m_pathAgent.GoToNode(node, maxMoveScaled);
 		if (m_pathAgent.OnPath()) // If there was a valid path to the node
 		{
 			int gScoreScaled = node->m_gScore / m_map->GetTileSize();
@@ -97,6 +98,16 @@ void Agent::GoTo(Node* node)
 			//m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Set the current node as unoccupied 
 			//node->m_occupant = this; // Set self as occupying the target node
 		}
+	}
+}
+
+void Agent::FollowPath(std::vector<Node*> path)
+{
+	m_pathAgent.FollowPath(path);
+	if (m_pathAgent.OnPath()) // If there was a valid path to the node
+	{
+		int gScoreScaled = path[path.size() - 1]->m_gScore / m_map->GetTileSize();
+		m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
 	}
 }
 
@@ -164,9 +175,9 @@ glm::vec2 Agent::GetPosition() const
 	return m_pathAgent.GetPosition();
 }
 
-int Agent::GetMaxMove() const
+int Agent::GetMaxMoveScaled() const
 {
-	return m_maxMove;
+	return m_maxMove * m_map->GetTileSize();
 }
 
 int Agent::GetMovesLeft() const

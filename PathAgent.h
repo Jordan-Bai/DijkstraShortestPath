@@ -18,7 +18,8 @@ public:
 	PathAgent() = default;
 	PathAgent(Node* node, float speed);
 
-	void GoToNode(Node* node);
+	void GoToNode(Node* node, int maxMoveScaled);
+	void FollowPath(std::vector<Node*> path);
 	void SetCurrentNode(Node* node);
 	Node* GetCurrentNode() const;
 	glm::vec2 GetPosition() const;

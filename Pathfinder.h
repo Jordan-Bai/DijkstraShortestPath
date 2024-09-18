@@ -100,7 +100,7 @@ public:
 	void Draw();
 };
 
-std::vector<Node*> PathSearch(Node* startNode, Node* endNode);
+std::vector<Node*> PathSearch(Node* startNode, Node* endNode, int maxMoveScaled);
 
 inline bool greaterComp(const Node* node1, const Node* node2) // Need to use this as the comparison because otherwise we couldn't compare pointers
 {

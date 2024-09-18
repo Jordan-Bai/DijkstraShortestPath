@@ -29,7 +29,7 @@ float FleeParam::GetCost(Edge* edge)
 }
 
 
-Node* BestTarget(Agent* agent, SearchParam* param)
+std::vector<Node*> BestPath(Agent* agent, SearchParam* param)
 {
 	Node* startNode = agent->GetCurrentNode();
 	float movesLeftScaled = agent->GetMovesLeft() * agent->GetMap()->GetTileSize();
@@ -41,6 +41,7 @@ Node* BestTarget(Agent* agent, SearchParam* param)
 	}
 
 	startNode->m_gScore = 0;
+	startNode->m_previousNode = nullptr;
 
 	Node* currentBestNode = startNode;
 	float currentBestScore = param->Evaluate(startNode);
@@ -116,5 +117,19 @@ Node* BestTarget(Agent* agent, SearchParam* param)
 		}
 	}
 
-	return currentBestNode;
+	if (currentBestNode == startNode) // If no better node was found
+	{
+		return {}; // Return an empty vector
+	}
+
+	std::vector<Node*> finalPath;
+	Node* currentNode = currentBestNode;
+
+	while (currentNode != nullptr)
+	{
+		finalPath.insert(finalPath.begin(), currentNode);
+		currentNode = currentNode->m_previousNode; // Follow the previous nodes to the start of the path
+	}
+
+	return finalPath;
 }

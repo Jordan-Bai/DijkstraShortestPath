@@ -49,7 +49,7 @@ int main() {
     agent1.SetNode(start);
     agent1.SetSpeed(256);
     agent1.SetColour({ 0, 0, 0, 255 });
-    agent1.SetMaxMove(10);
+    agent1.SetMaxMove(15);
     agent1.SetHealth(10);
 
     // CREATING ENEMIES
@@ -81,7 +81,7 @@ int main() {
     Agent enemy3(&map, &fsm2);
     enemy3.SetNode(map.GetNode(1, 13));
     enemy3.SetSpeed(512);
-    enemy3.SetMaxMove(6);
+    enemy3.SetMaxMove(3);
     enemy3.SetHealth(3);
     //--------------------------------------------------------------------------------------
 

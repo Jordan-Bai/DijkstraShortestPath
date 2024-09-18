@@ -43,13 +43,14 @@ void GoToPoint::Update(Agent* agent, float deltaTime)
     {
         Vector2 mousePos = GetMousePosition();
         Node* target = agent->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
-        std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), target);
+        float maxMoveScaled = agent->GetMaxMoveScaled();
+
+        std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), target, maxMoveScaled);
         if (desiredPath.empty()) // If there's no path to the target, don't move
         {
             return;
         }
 
-        float maxMoveScaled = agent->GetMaxMove() * agent->GetMap()->GetTileSize();
         if (target->m_gScore <= maxMoveScaled) // If the target node is in range, go to it
         {
             agent->GoTo(target);
@@ -102,7 +103,7 @@ void PlayerIdle::Update(Agent* agent, float deltaTime)
     {
         Vector2 mousePos = GetMousePosition();
         Node* target = agent->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
-        std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), target);
+        std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), target, agent->GetMaxMoveScaled());
         if (desiredPath.empty()) // If there's no path to the target, don't move
         {
             return;
@@ -168,17 +169,15 @@ void MeleeAttack::Update(Agent* agent, float deltaTime)
 
 void MeleeAttack::Move(Agent* agent)
 {
-    std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode());
+    float maxMoveScaled = agent->GetMaxMoveScaled();
+    std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode(), maxMoveScaled);
+
     if (desiredPath.empty()) // If there's no path to the target, don't move
     {
         std::cout << "No path" << std::endl;
         agent->StopMovement();
         return;
     }
-
-    //agent->GetCurrentNode()->m_occupant = nullptr; // FOR TESTING
-
-    float maxMoveScaled = agent->GetMaxMove() * agent->GetMap()->GetTileSize();
 
     // Go to the furthest valid node along that path
     //--------------------------------------------------------------------------------------
@@ -227,8 +226,10 @@ void Fleeing::Update(Agent* agent, float deltaTime)
     {
         if (agent->GetMovesLeft() > 0) // If they still have movement left, move
         {
-            Node* target = BestTarget(agent, &m_fleeParam);
-            agent->GoTo(target);
+            //Node* target = BestTarget(agent, &m_fleeParam);
+            //agent->GoTo(target);
+            std::vector<Node*> path = BestPath(agent, &m_fleeParam);
+            agent->FollowPath(path);
             agent->StopMovement(); // FOR TESTING
         }
         else // Otherwise, finish turn

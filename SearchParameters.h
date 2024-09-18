@@ -19,4 +19,4 @@ public:
 	float GetCost(Edge* edge) override;
 };
 
-Node* BestTarget(Agent* agent, SearchParam* param);
+std::vector<Node*> BestPath(Agent* agent, SearchParam* param);

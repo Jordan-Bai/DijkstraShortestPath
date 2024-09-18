@@ -7,9 +7,15 @@ PathAgent::PathAgent(Node* node, float speed)
 {
 }
 
-void PathAgent::GoToNode(Node* node)
+void PathAgent::GoToNode(Node* node, int maxMoveScaled)
 {
-	m_path = PathSearch(m_currentNode, node);
+	m_path = PathSearch(m_currentNode, node, maxMoveScaled);
+	m_currentIndex = 0;
+}
+
+void PathAgent::FollowPath(std::vector<Node*> path)
+{
+	m_path = path;
 	m_currentIndex = 0;
 }
 
