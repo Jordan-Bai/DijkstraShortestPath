@@ -5,39 +5,39 @@ class Agent; // Need to declare agent here, so condition & agent can reference e
 
 class Condition // Abstract base class for all conditions
 {
+protected:
+	bool m_doInverse; // If true, return the opposite of what it would normally return
 public:
 	virtual bool IsTrue(Agent* agent) = 0;
 };
 
-class DistanceCondition : public Condition
+class CloserThan : public Condition
 {
 	Agent* m_target; // The target whose distance we're finding
 	float m_distance; // The distance being compared against
-	bool m_isLessThan; // Whether this is a less-than comparision
 
 public:
-	DistanceCondition(Agent* target, float distance, bool lessThanComp);
+	CloserThan(Agent* target, float distance, bool doInverse);
 
 	bool IsTrue(Agent* agent) override;
 };
 
-class HPCondition : public Condition
+class LowHealth : public Condition
 {
 	int m_hpThreshold; // The HP value being compared against
-	bool m_isLessThan; // Whether this is a less-than comparision
 
 public:
-	HPCondition(int hpThreshold, bool lessThanComp);
+	LowHealth(int hpThreshold, bool doInverse);
 
 	bool IsTrue(Agent* agent) override;
 };
 
-class LineOfSightCon : public Condition
+class HasLineOfSight : public Condition
 {
 	Agent* m_target; // The target whose distance we're finding
 
 public:
-	LineOfSightCon(Agent* target);
+	HasLineOfSight(Agent* target, bool doInverse);
 
 	bool IsTrue(Agent* agent) override;
 };

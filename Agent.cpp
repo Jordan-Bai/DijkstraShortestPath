@@ -80,12 +80,33 @@ void Agent::GoTo(Node* node)
 
 void Agent::FollowPath(std::vector<Node*> path)
 {
-	m_pathAgent.FollowPath(path);
-	if (m_pathAgent.OnPath()) // If there was a valid path to the node
+	if (path.empty()) // If the path is empty, ignore it
 	{
-		int gScoreScaled = path[path.size() - 1]->m_gScore / m_map->GetTileSize(); // Get the gScore of the last node
-		m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
+		return;
 	}
+
+	// Go to the furthest valid node along that path
+	Node* furthestNode = nullptr;
+	int furthestIndex = 0;
+
+	// Repeat for each node in range that doesn't have another agent already in it
+	for (int i = 0; i < path.size() && path[i]->m_gScore < GetMaxMoveScaled(); i++)
+	{
+		// If the node is occupied, don't set it as the furthest node, but continue the loop (means agents can pass through an occupied node on their path,
+		// but will never try to stop at an occupied node)
+		if (path[i]->m_occupant == nullptr)
+		{
+			furthestNode = path[i]; // If the agent can reach this node, set it as the new target
+			furthestIndex = i;
+		}
+	}
+
+	path.erase(path.begin() + furthestIndex + 1, path.end()); // Remove the invalid nodes from the list
+	// Adjust the number of moves left
+	int gScoreScaled = furthestNode->m_gScore / m_map->GetTileSize(); // Get the gScore of the last node
+	m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
+
+	m_pathAgent.FollowPath(path);
 }
 
 void Agent::StopMovement()

@@ -68,19 +68,32 @@ public:
 	void Attack(Agent* agent);
 };
 
-class MeleeAttack : public State
+class MeleeChase : public State
 {
 	Agent* m_target;
-	float m_range; // How close they have to be to attack
-	
+
 public:
-	MeleeAttack(Agent* target, float range);
+	MeleeChase(Agent* target);
 
 	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
 
 	void Move(Agent* agent);
-	void Attack(Agent* agent);
+};
+
+class MeleeAttack : public State
+{
+	Agent* m_target;
+	//float m_range; // How close they have to be to attack
+	
+public:
+	MeleeAttack(Agent* target);
+
+	void Enter(Agent* agent) override;
+	void Update(Agent* agent, float deltaTime) override;
+
+	//void Move(Agent* agent);
+	//void Attack(Agent* agent);
 };
 
 class RangedChase : public State
@@ -96,6 +109,7 @@ public:
 
 class RangedAttack : public State
 {
+	Agent* m_target;
 	LineOfSight m_los;
 
 public:

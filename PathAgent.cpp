@@ -74,6 +74,12 @@ void PathAgent::Update(float deltaTime)
 	{
 		return; // If the path is empty, don't do anything
 	}
+	if (m_path.size() == 1) // If the path only contains 1 node, it must only contain the current node, so ignore it
+	{
+		m_path.clear();
+		m_position = m_currentNode->m_position;
+		return;
+	}
 
 	Node* targetNode = m_path[m_currentIndex + 1];
 	glm::vec2 direction = targetNode->m_position - m_position;

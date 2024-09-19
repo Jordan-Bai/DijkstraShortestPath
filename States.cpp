@@ -129,29 +129,38 @@ void Player::Attack(Agent* agent)
     agent->FinishTurn();
 }
 
-// MeleeAttack
-MeleeAttack::MeleeAttack(Agent* target, float range)
-	: m_target(target), m_range(range)
+// MeleeChase
+MeleeChase::MeleeChase(Agent* target)
+	: m_target(target)
 {
 }
 
-void MeleeAttack::Enter(Agent* agent)
+void MeleeChase::Enter(Agent* agent)
 {
-    agent->SetColour({ 0, 0, 255, 255 }); // Make agent blue 
+    agent->SetColour({ 0, 0, 255, 255 }); // Make agent blue
 }
 
-void MeleeAttack::Update(Agent* agent, float deltaTime)
+void MeleeChase::Update(Agent* agent, float deltaTime)
 {
     if (agent->PathComplete()) // If they're not moving
     {
-        glm::vec2 distance = m_target->GetPosition() - agent->GetPosition();
-        if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
+        if (agent->GetMovesLeft() > 0) // Otherwise, if they can still move, do so
         {
-            Attack(agent);
-        }
-        else if (agent->GetMovesLeft() > 0) // Otherwise, if they can still move, do so
-        {
-            Move(agent);
+            float maxMoveScaled = agent->GetMaxMoveScaled();
+            std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode(), maxMoveScaled);
+
+            if (desiredPath.empty()) // If there's no path to the target, don't move
+            {
+                std::cout << "No path" << std::endl;
+                agent->StopMovement();
+                return;
+            }
+            agent->FollowPath(desiredPath);
+
+            // FOR TESTING
+            //-----------------------------------------------------------------------------------------------------
+            agent->StopMovement();
+            //-----------------------------------------------------------------------------------------------------
         }
         else // If they can't do anything, finish the turn
         {
@@ -160,46 +169,27 @@ void MeleeAttack::Update(Agent* agent, float deltaTime)
     }
 }
 
-void MeleeAttack::Move(Agent* agent)
+
+// MeleeAttack
+MeleeAttack::MeleeAttack(Agent* target)
+	: m_target(target)
 {
-    float maxMoveScaled = agent->GetMaxMoveScaled();
-    std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode(), maxMoveScaled);
-
-    if (desiredPath.empty()) // If there's no path to the target, don't move
-    {
-        std::cout << "No path" << std::endl;
-        agent->StopMovement();
-        return;
-    }
-
-    // Go to the furthest valid node along that path
-    //--------------------------------------------------------------------------------------
-    Node* furthestNode = nullptr;
-    // Repeat for each node in range that doesn't have another agent already in it
-    for (int i = 0; i < desiredPath.size() && desiredPath[i]->m_gScore < maxMoveScaled; i++)
-    {
-        // If the node is occupied, don't set it as the furthest node, but continue the loop (means agents can pass through an occupied node on their path,
-        // but will never try to stop at an occupied node)
-        if (desiredPath[i]->m_occupant == nullptr)
-        {
-            furthestNode = desiredPath[i]; // If the agent can reach this node, set it as the new target
-        }
-    }
-    agent->GoTo(furthestNode);
-    //--------------------------------------------------------------------------------------
-
-    agent->StopMovement(); // FOR TESTING
 }
 
-void MeleeAttack::Attack(Agent* agent)
+void MeleeAttack::Enter(Agent* agent)
 {
-    glm::vec2 distance = m_target->GetPosition() - agent->GetPosition();
-    if (glm::length(distance) < agent->GetMap()->GetTileSize() * m_range) // If target is in range, attack them
+    agent->SetColour({ 255, 0, 0, 255 }); // Make agent red 
+}
+
+void MeleeAttack::Update(Agent* agent, float deltaTime)
+{
+    if (agent->PathComplete()) // If they're not moving
     {
         m_target->TakeDamage(agent->GetAttack());
+        agent->FinishTurn();
     }
-    agent->FinishTurn();
 }
+
 
 // Ranged Chase
 RangedChase::RangedChase(Agent* target)
@@ -218,7 +208,7 @@ void RangedChase::Update(Agent* agent, float deltaTime)
     {
         if (agent->GetMovesLeft() > 0) // If they still have movement left, move
         {
-            std::vector<Node*> path = BestPath(agent, &m_los);
+            std::vector<Node*> path = ClosestTarget(agent, &m_los);
             agent->FollowPath(path);
             agent->StopMovement(); // FOR TESTING
         }
@@ -232,18 +222,19 @@ void RangedChase::Update(Agent* agent, float deltaTime)
 
 // Ranged Attack
 RangedAttack::RangedAttack(Agent* target)
-	:m_los(target)
+	: m_target(target), m_los(target)
 {
 }
 
 void RangedAttack::Enter(Agent* agent)
 {
-	
+    agent->SetColour({ 255, 0, 255, 255 }); // Make agent purple
 }
 
 void RangedAttack::Update(Agent* agent, float deltaTime)
 {
     std::cout << "SHOOT" << std::endl;
+    m_target->TakeDamage(agent->GetAttack());
     agent->FinishTurn();
 }
 
@@ -265,7 +256,7 @@ void Fleeing::Update(Agent* agent, float deltaTime)
     {
         if (agent->GetMovesLeft() > 0) // If they still have movement left, move
         {
-            std::vector<Node*> path = BestPath(agent, &m_fleeParam);
+            std::vector<Node*> path = BestTarget(agent, &m_fleeParam);
             agent->FollowPath(path);
             agent->StopMovement(); // FOR TESTING
         }

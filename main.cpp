@@ -49,53 +49,104 @@ int main() {
     myPlayer.SetSpeed(256);
     myPlayer.SetColour({ 0, 0, 0, 255 });
     myPlayer.SetMaxMove(15);
-    myPlayer.SetHealth(10);
+    myPlayer.SetHealth(20);
 
-    // Create enemies
-    MeleeAttack attack(&myPlayer, 1.25f);
-    RangedAttack shoot(&myPlayer);
-    Fleeing flee(&myPlayer);
+    // Create transtions
+    //-----------------------------------------------------------------------------------------------------
+    CloserThan inRange(&myPlayer, 1.25f, false);
+    CloserThan notInRange(&myPlayer, 1.25f, true);
+    LowHealth lowHP(2, false);
+    HasLineOfSight hasLOS(&myPlayer, false);
+    HasLineOfSight noLOS(&myPlayer, true);
+    //-----------------------------------------------------------------------------------------------------
 
-    HPCondition lowHealth(2, true);
-    HPCondition highHealth(2, false);
-    attack.AddTransition(&lowHealth, &flee);
-    flee.AddTransition(&highHealth, &attack);
+    // Create melee enemies
+    //-----------------------------------------------------------------------------------------------------
+    MeleeChase mChase1(&myPlayer);
+    MeleeAttack mAttack1(&myPlayer);
 
-    FiniteStateMachine fsm1(&attack);
-    FiniteStateMachine fsm2(&attack);
+    mChase1.AddTransition(&inRange, &mAttack1);
+    mAttack1.AddTransition(&notInRange, &mChase1);
 
-    Agent enemy1(&map, &shoot);
-    enemy1.SetNode(map.GetNode(16, 1));
+    FiniteStateMachine fsm1(&mChase1);
+
+    Agent enemy1(&map, &fsm1); // Will only ever attack, never flee
+    enemy1.SetNode(map.GetNode(1, 13));
     enemy1.SetSpeed(512);
     enemy1.SetMaxMove(6);
     enemy1.SetHealth(3);
+    enemy1.SetColour({ 255, 0, 0, 255 }); // Red
 
-    Agent enemy2(&map, &attack); // Will oly ever attack, never flee
-    enemy2.SetNode(map.GetNode(16, 13));
+    // Have to create new versions of these states since they'll have different transitions
+    MeleeChase mChase2(&myPlayer);
+    MeleeAttack mAttack2(&myPlayer);
+    Fleeing flee(&myPlayer);
+
+    mChase2.AddTransition(&inRange, &mAttack2);
+    mChase2.AddTransition(&lowHP, &flee);
+    mAttack2.AddTransition(&notInRange, &mChase2);
+    mAttack2.AddTransition(&lowHP, &flee);
+
+    FiniteStateMachine fsm2(&mChase2);
+
+    Agent enemy2(&map, &fsm2); // Will flee if health is low
+    enemy2.SetNode(map.GetNode(16, 1));
     enemy2.SetSpeed(512);
-    enemy2.SetMaxMove(6);
+    enemy2.SetMaxMove(3);
     enemy2.SetHealth(3);
-    enemy2.SetColour({ 255, 0, 0, 255 });
+    //-----------------------------------------------------------------------------------------------------
 
-    Agent enemy3(&map, &fsm2);
-    enemy3.SetNode(map.GetNode(1, 13));
+    // Create ranged enemy
+    //-----------------------------------------------------------------------------------------------------
+    RangedChase rChase1(&myPlayer);
+    RangedAttack shoot(&myPlayer);
+
+    rChase1.AddTransition(&hasLOS, &shoot);
+    shoot.AddTransition(&noLOS, &rChase1);
+
+    FiniteStateMachine fsm3(&rChase1);
+
+    Agent enemy3(&map, &fsm3);
+    enemy3.SetNode(map.GetNode(16, 13));
     enemy3.SetSpeed(512);
-    enemy3.SetMaxMove(3);
+    enemy3.SetMaxMove(6);
     enemy3.SetHealth(3);
+    enemy3.SetColour({ 0, 255, 0, 255 }); // Green
+    //-----------------------------------------------------------------------------------------------------
 
-    // TESTING
-    //--------------------------------------------------------------------------------------
-    //LineOfSight los(&myPlayer);
-    //std::cout << los.Evaluate(map.GetNode(1, 7)) << std::endl;
-    //std::cout << los.Evaluate(map.GetNode(2, 1)) << std::endl;
-    //std::cout << los.Evaluate(map.GetNode(2, 3)) << std::endl;
-    //--------------------------------------------------------------------------------------
+    // Create melee & ranged enemy
+    //-----------------------------------------------------------------------------------------------------
+    MeleeChase mChase3(&myPlayer);
+    MeleeAttack mAttack3(&myPlayer);
+    RangedChase rChase2(&myPlayer);
+    RangedAttack rAttack(&myPlayer);
+
+    // Melee transitions
+    mChase3.AddTransition(&inRange, &mAttack3);
+    mAttack3.AddTransition(&notInRange, &mChase3);
+    // Melee-Ranged transitions (if low hp, switch to ranged)
+    mChase3.AddTransition(&lowHP, &rChase2);
+    mAttack3.AddTransition(&notInRange, &rChase2);
+    // Ranged transitions
+    rChase2.AddTransition(&hasLOS, &rAttack);
+    rAttack.AddTransition(&noLOS, &rChase2);
+
+    FiniteStateMachine fsm4(&mChase3);
+
+    Agent enemy4(&map, &fsm4);
+    enemy4.SetNode(map.GetNode(8, 10));
+    enemy4.SetSpeed(512);
+    enemy4.SetMaxMove(6);
+    enemy4.SetHealth(3);
+    //-----------------------------------------------------------------------------------------------------
+
 
     // Add agents to turn controller
     TurnController tc(&myPlayer);
-    tc.AddAgent(&enemy1);
+    //tc.AddAgent(&enemy1);
     //tc.AddAgent(&enemy2);
     //tc.AddAgent(&enemy3);
+    tc.AddAgent(&enemy4);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
