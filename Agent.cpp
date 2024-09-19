@@ -74,6 +74,9 @@ void Agent::GoTo(Node* node)
 		{
 			int gScoreScaled = node->m_gScore / m_map->GetTileSize();
 			m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
+
+			m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Clear self from current node
+			node->m_occupant = this; // Set the target node as occupied by this agent
 		}
 	}
 }
@@ -82,8 +85,11 @@ void Agent::FollowPath(std::vector<Node*> path)
 {
 	if (path.empty()) // If the path is empty, ignore it
 	{
+		m_pathAgent.GetCurrentNode()->m_occupant = this;
 		return;
 	}
+
+	m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Clear self from current node
 
 	// Go to the furthest valid node along that path
 	Node* furthestNode = nullptr;
@@ -102,11 +108,19 @@ void Agent::FollowPath(std::vector<Node*> path)
 	}
 
 	path.erase(path.begin() + furthestIndex + 1, path.end()); // Remove the invalid nodes from the list
+	if (path.size() <= 1) // If there are no nodes/ only the starting node, return
+	{
+		m_pathAgent.GetCurrentNode()->m_occupant = this;
+		return;
+	}
+
 	// Adjust the number of moves left
 	int gScoreScaled = furthestNode->m_gScore / m_map->GetTileSize(); // Get the gScore of the last node
 	m_movesLeft -= gScoreScaled; // Subtract the cost of the path from the moves left
 
 	m_pathAgent.FollowPath(path);
+
+	furthestNode->m_occupant = this; // Set the target node as occupied by this agent
 }
 
 void Agent::StopMovement()
@@ -203,8 +217,6 @@ int Agent::GetAttack() const
 
 void Agent::Update(float deltaTime)
 {
-	m_pathAgent.GetCurrentNode()->m_occupant = nullptr; // Clear self from current node
-
 	// Update the state (if there is one)
 	if (m_behaviour)
 	{
@@ -213,8 +225,6 @@ void Agent::Update(float deltaTime)
 
 	// Move the agent
 	m_pathAgent.Update(deltaTime);
-
-	m_pathAgent.GetCurrentNode()->m_occupant = this; // Set the current node as occupied by this agent
 }
 
 void Agent::Draw()

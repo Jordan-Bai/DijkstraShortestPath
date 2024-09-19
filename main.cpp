@@ -73,9 +73,8 @@ int main() {
     Agent enemy1(&map, &fsm1); // Will only ever attack, never flee
     enemy1.SetNode(map.GetNode(1, 13));
     enemy1.SetSpeed(512);
-    enemy1.SetMaxMove(6);
+    enemy1.SetMaxMove(4);
     enemy1.SetHealth(3);
-    enemy1.SetColour({ 255, 0, 0, 255 }); // Red
 
     // Have to create new versions of these states since they'll have different transitions
     MeleeChase mChase2(&myPlayer);
@@ -92,17 +91,17 @@ int main() {
     Agent enemy2(&map, &fsm2); // Will flee if health is low
     enemy2.SetNode(map.GetNode(16, 1));
     enemy2.SetSpeed(512);
-    enemy2.SetMaxMove(3);
+    enemy2.SetMaxMove(4);
     enemy2.SetHealth(3);
     //-----------------------------------------------------------------------------------------------------
 
     // Create ranged enemy
     //-----------------------------------------------------------------------------------------------------
     RangedChase rChase1(&myPlayer);
-    RangedAttack shoot(&myPlayer);
+    RangedAttack rAttack1(&myPlayer);
 
-    rChase1.AddTransition(&hasLOS, &shoot);
-    shoot.AddTransition(&noLOS, &rChase1);
+    rChase1.AddTransition(&hasLOS, &rAttack1);
+    rAttack1.AddTransition(&noLOS, &rChase1);
 
     FiniteStateMachine fsm3(&rChase1);
 
@@ -119,17 +118,21 @@ int main() {
     MeleeChase mChase3(&myPlayer);
     MeleeAttack mAttack3(&myPlayer);
     RangedChase rChase2(&myPlayer);
-    RangedAttack rAttack(&myPlayer);
+    RangedAttack rAttack2(&myPlayer);
+
+    CombinedCon lowHPHasLOS(&lowHP, &hasLOS, false);
 
     // Melee transitions
     mChase3.AddTransition(&inRange, &mAttack3);
     mAttack3.AddTransition(&notInRange, &mChase3);
     // Melee-Ranged transitions (if low hp, switch to ranged)
     mChase3.AddTransition(&lowHP, &rChase2);
-    mAttack3.AddTransition(&notInRange, &rChase2);
+    mAttack3.AddTransition(&lowHP, &rChase2);
+    mChase3.AddTransition(&lowHPHasLOS, &rAttack2);
+    mAttack3.AddTransition(&lowHPHasLOS, &rAttack2);
     // Ranged transitions
-    rChase2.AddTransition(&hasLOS, &rAttack);
-    rAttack.AddTransition(&noLOS, &rChase2);
+    rChase2.AddTransition(&hasLOS, &rAttack2);
+    rAttack2.AddTransition(&noLOS, &rChase2);
 
     FiniteStateMachine fsm4(&mChase3);
 
@@ -143,9 +146,9 @@ int main() {
 
     // Add agents to turn controller
     TurnController tc(&myPlayer);
-    //tc.AddAgent(&enemy1);
-    //tc.AddAgent(&enemy2);
-    //tc.AddAgent(&enemy3);
+    tc.AddAgent(&enemy1);
+    tc.AddAgent(&enemy2);
+    tc.AddAgent(&enemy3);
     tc.AddAgent(&enemy4);
 
     SetTargetFPS(60);

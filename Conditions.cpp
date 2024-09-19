@@ -2,6 +2,20 @@
 
 #include "Agent.h" // Need to include this so agent is properly defined and not just declared
 
+CombinedCon::CombinedCon(Condition* con1, Condition* con2, bool doInverse)
+	: m_con1(con1), m_con2(con2)
+{
+	m_doInverse = doInverse;
+}
+
+bool CombinedCon::IsTrue(Agent* agent)
+{
+	bool combined = m_con1->IsTrue(agent) && m_con2->IsTrue(agent);
+	return combined != m_doInverse;
+}
+
+
+
 CloserThan::CloserThan(Agent* target, float distance, bool doInverse)
 	: m_target(target), m_distance(distance* target->GetMap()->GetTileSize())
 {
@@ -14,6 +28,7 @@ bool CloserThan::IsTrue(Agent* agent)
 	return lessThan != m_doInverse;
 }
 
+
 LowHealth::LowHealth(int hpThreshold, bool doInverse)
 	: m_hpThreshold(hpThreshold)
 {
@@ -25,6 +40,7 @@ bool LowHealth::IsTrue(Agent* agent)
 	bool lessThan = (agent->GetHealth() < m_hpThreshold);
 	return lessThan != m_doInverse;
 }
+
 
 HasLineOfSight::HasLineOfSight(Agent* target, bool doInverse)
 	: m_target(target)
@@ -45,7 +61,7 @@ bool HasLineOfSight::IsTrue(Agent* agent)
 
 		if (nodeRow < targetRow) // If the node is above the target
 		{
-			for (int i = nodeRow; i < targetRow; i++) // Check each spot between the node and the target 
+			for (int i = nodeRow + 1; i < targetRow; i++) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(column, i);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -56,7 +72,7 @@ bool HasLineOfSight::IsTrue(Agent* agent)
 		}
 		else // If the node is below the target
 		{
-			for (int i = nodeRow; i > targetRow; i--) // Check each spot between the node and the target 
+			for (int i = nodeRow - 1; i > targetRow; i--) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(column, i);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -75,7 +91,7 @@ bool HasLineOfSight::IsTrue(Agent* agent)
 
 		if (nodeColumn < targetColumn) // If the node is left of the target
 		{
-			for (int i = nodeColumn; i < targetColumn; i++) // Check each spot between the node and the target 
+			for (int i = nodeColumn + 1; i < targetColumn; i++) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(i, row);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -86,7 +102,7 @@ bool HasLineOfSight::IsTrue(Agent* agent)
 		}
 		else // If the node is right of the target
 		{
-			for (int i = nodeColumn; i > targetColumn; i--) // Check each spot between the node and the target 
+			for (int i = nodeColumn - 1; i > targetColumn; i--) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(i, row);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight

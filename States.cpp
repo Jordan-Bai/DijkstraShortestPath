@@ -210,7 +210,13 @@ void RangedChase::Update(Agent* agent, float deltaTime)
         {
             std::vector<Node*> path = ClosestTarget(agent, &m_los);
             agent->FollowPath(path);
-            agent->StopMovement(); // FOR TESTING
+
+            if (agent->PathComplete()) // Means it couldn't follow that path, so end turn
+            {
+                agent->FinishTurn();
+            }
+
+            //agent->StopMovement(); // FOR TESTING
         }
         else // Otherwise, finish turn
         {
@@ -233,9 +239,21 @@ void RangedAttack::Enter(Agent* agent)
 
 void RangedAttack::Update(Agent* agent, float deltaTime)
 {
-    std::cout << "SHOOT" << std::endl;
-    m_target->TakeDamage(agent->GetAttack());
-    agent->FinishTurn();
+    if (agent->PathComplete()) // If the agent isn't moving
+    {
+        if (agent->GetMovesLeft() > 0) // If they still have movement left, move
+        {
+            std::vector<Node*> betterPath = BestTarget(agent, &m_los);
+            agent->FollowPath(betterPath);
+            agent->StopMovement(); // FOR TESTING
+        }
+        else // Otherwise, attack
+        {
+            std::cout << "SHOOT" << std::endl;
+            m_target->TakeDamage(agent->GetAttack());
+            agent->FinishTurn();
+        }
+    }
 }
 
 

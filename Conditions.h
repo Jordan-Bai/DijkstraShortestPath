@@ -11,6 +11,17 @@ public:
 	virtual bool IsTrue(Agent* agent) = 0;
 };
 
+class CombinedCon : public Condition // Essentially acts as an "and" for conditions
+{
+	Condition* m_con1;
+	Condition* m_con2;
+
+public:
+	CombinedCon(Condition* con1, Condition* con2, bool doInverse);
+
+	bool IsTrue(Agent* agent) override;
+};
+
 class CloserThan : public Condition
 {
 	Agent* m_target; // The target whose distance we're finding

@@ -67,7 +67,7 @@ float LineOfSight::Evaluate(Node* node)
 
 		if (nodeRow < targetRow) // If the node is above the target
 		{
-			for (int i = nodeRow; i < targetRow; i++) // Check each spot between the node and the target 
+			for (int i = nodeRow + 1; i < targetRow; i++) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(column, i);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -78,7 +78,7 @@ float LineOfSight::Evaluate(Node* node)
 		}
 		else // If the node is below the target
 		{
-			for (int i = nodeRow; i > targetRow; i--) // Check each spot between the node and the target 
+			for (int i = nodeRow - 1; i > targetRow; i--) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(column, i);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -97,18 +97,22 @@ float LineOfSight::Evaluate(Node* node)
 
 		if (nodeColumn < targetColumn) // If the node is left of the target
 		{
-			for (int i = nodeColumn; i < targetColumn; i++) // Check each spot between the node and the target 
+			for (int i = nodeColumn + 1; i < targetColumn; i++) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(i, row);
-				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
+				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall), no line of sight
 				{
 					return 0;
 				}
+				//if (node->m_occupant && node->m_occupant != m_target) // If there's an occupied node, no line of sight
+				//{
+				//	return 0;
+				//}
 			}
 		}
 		else // If the node is right of the target
 		{
-			for (int i = nodeColumn; i > targetColumn; i--) // Check each spot between the node and the target 
+			for (int i = nodeColumn - 1; i > targetColumn; i--) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(i, row);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -123,7 +127,9 @@ float LineOfSight::Evaluate(Node* node)
 		return 0;
 	}
 
-	return 1; // If nothing returned 0, there must be line of sight
+	// If nothing returned 0, there must be line of sight
+	glm::vec2 distance = m_target->GetPosition() - node->m_position;
+	return glm::length(distance); // Return the distance from the target (prefers spots further away)
 }
 
 bool LineOfSight::ValidTarget(Node* node)
@@ -137,7 +143,7 @@ bool LineOfSight::ValidTarget(Node* node)
 
 		if (nodeRow < targetRow) // If the node is above the target
 		{
-			for (int i = nodeRow; i < targetRow; i++) // Check each spot between the node and the target 
+			for (int i = nodeRow + 1; i < targetRow; i++) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(column, i);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -148,7 +154,7 @@ bool LineOfSight::ValidTarget(Node* node)
 		}
 		else // If the node is below the target
 		{
-			for (int i = nodeRow; i > targetRow; i--) // Check each spot between the node and the target 
+			for (int i = nodeRow - 1; i > targetRow; i--) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(column, i);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -167,7 +173,7 @@ bool LineOfSight::ValidTarget(Node* node)
 
 		if (nodeColumn < targetColumn) // If the node is left of the target
 		{
-			for (int i = nodeColumn; i < targetColumn; i++) // Check each spot between the node and the target 
+			for (int i = nodeColumn + 1; i < targetColumn; i++) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(i, row);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -178,7 +184,7 @@ bool LineOfSight::ValidTarget(Node* node)
 		}
 		else // If the node is right of the target
 		{
-			for (int i = nodeColumn; i > targetColumn; i--) // Check each spot between the node and the target 
+			for (int i = nodeColumn - 1; i > targetColumn; i--) // Check each spot between the node and the target 
 			{
 				Node* node = m_target->GetMap()->GetNode(i, row);
 				if (!node || node->m_occupant) // If there isn't a node (aka there's a wall) or there's an occupied node, no line of sight
@@ -207,6 +213,8 @@ std::vector<Node*> BestTarget(Agent* agent, SearchParam* param)
 		std::cout << "Invalid target search" << std::endl;
 		return {}; // Return an empty vector
 	}
+
+	agent->GetCurrentNode()->m_occupant = nullptr; // Clear the agent from the node so it doesn't get in the way of pathfinding
 
 	startNode->m_gScore = 0;
 	startNode->m_previousNode = nullptr;
@@ -285,6 +293,8 @@ std::vector<Node*> BestTarget(Agent* agent, SearchParam* param)
 		}
 	}
 
+	//agent->GetCurrentNode()->m_occupant = agent; // Put the agent back before returning anything
+
 	if (currentBestNode == startNode) // If no better node was found
 	{
 		return {}; // Return an empty vector
@@ -333,7 +343,12 @@ std::vector<Node*> ClosestTarget(Agent* agent, SearchParam* param)
 		if (param->Evaluate(currentNode)) // If we've reached a node that fulfills the parameters, we can end the loop
 		{
 			targetNode = currentNode;
-			break;
+			if (!currentNode->m_occupant || currentNode->m_occupant == agent)
+			{
+				break;
+			}
+			// If the node is occupied by an agent other than the one searching, this isn't really a valid node. However, if there are
+			// no other valid nodes, it's still worth pathing towards. Therefore we set this as the target node but continue searching
 		}
 
 		// Update open list:
@@ -396,7 +411,7 @@ std::vector<Node*> ClosestTarget(Agent* agent, SearchParam* param)
 
 	if (targetNode == nullptr) // If no valid target was found
 	{
-		std::cout << "No path found" << std::endl;
+		std::cout << "No target found" << std::endl;
 		return {}; // Return an empty vector
 	}
 
