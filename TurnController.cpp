@@ -17,17 +17,34 @@ void TurnController::AddAgent(Agent* agent)
 
 void TurnController::StartPlayerTurn()
 {
+	if (m_player->IsDead()) // Means the battle is over
+	{
+		m_battleOver = true;
+		return;
+	}
+
 	m_isPlayerTurn = true;
-	std::cout << std::endl << "Player turn" << std::endl;
 	m_player->StartTurn();
+
+	// Recalculate the path to the hovered tile so it's drawn correctly
+	Vector2 mousePos = GetMousePosition();
+	Node* hovered = m_player->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
+	m_hoveredTile = hovered;
+	if (!hovered) // If hovered is null, don't do a path search, just make the path empty
+	{
+		m_hoveredPath = {};
+	}
+	else
+	{
+		m_hoveredPath = PathSearch(m_player->GetCurrentNode(), hovered, m_player->GetMaxMoveScaled());
+	}
 }
 
 void TurnController::StartEnemyTurn()
 {
-	std::cout << std::endl << "Enemy turn" << std::endl;
-	if (m_agents.empty()) // If there are no enemies, we can't start the enemy turn
+	if (m_agents.empty()) // If there are no enemies, the battle is over & we can't start the enemy turn
 	{
-		std::cout << "Empty" << std::endl;
+		m_battleOver = true;
 		StartPlayerTurn();
 		return;
 	}
@@ -38,92 +55,92 @@ void TurnController::StartEnemyTurn()
 	m_agents[0]->StartTurn();
 }
 
-void TurnController::EndBattle()
+bool TurnController::BattleOver() const
 {
-	
+	return m_battleOver;
 }
 
 void TurnController::Update(float deltaTime)
 {
-
-	if (m_isPlayerTurn)
+	if (!m_battleOver) // Only update if the battle is still going
 	{
-		m_player->Update(deltaTime);
-		
-		// Inputs for ending player turn
-		if ((IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) 
-			&& m_player->PathComplete()) // Player isn't still moving
+		if (m_agents.empty()) // If there are no enemies, the battle is over 
 		{
-			StartEnemyTurn(); // End the player's turn
+			m_battleOver = true;
+			return;
 		}
 
-		if (m_player->TurnComplete())
+		if (m_isPlayerTurn)
 		{
-			StartEnemyTurn();
-		}
-	}
-	else
-	{
-		if (m_agents[m_agentIndex]->IsDead()) // If the agent is dead, remove it from the list of agents
-		{
-			m_agents.erase(m_agents.begin() + m_agentIndex);
+			m_player->Update(deltaTime);
 
-			if (m_agentIndex >= m_agents.size()) // If the dead agent was the last one in the list, end the enemy turn
+			// Inputs for ending player turn
+			if ((IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+				&& m_player->PathComplete()) // Player isn't still moving
 			{
-				StartPlayerTurn();
-				return;
+				StartEnemyTurn(); // End the player's turn
 			}
 
-			// Otherwise, start the next agent's turn
-			m_agents[m_agentIndex]->StartTurn();
-		}
-
-		m_agents[m_agentIndex]->Update(deltaTime);
-
-		if (m_agents[m_agentIndex]->TurnComplete()) // If the agent finished its turn, move on to the next one
-		{
-			m_agentIndex++;
-			if (m_agentIndex >= m_agents.size()) // If there are no more agents in the list, the enemy turn is over
+			if (m_player->TurnComplete())
 			{
-				StartPlayerTurn();
+				StartEnemyTurn();
 			}
-			else
+		}
+		else
+		{
+			if (m_agents[m_agentIndex]->IsDead()) // If the agent is dead, remove it from the list of agents
 			{
+				m_agents.erase(m_agents.begin() + m_agentIndex);
+
+				if (m_agentIndex >= m_agents.size()) // If the dead agent was the last one in the list, end the enemy turn
+				{
+					StartPlayerTurn();
+					return;
+				}
+
+				// Otherwise, start the next agent's turn
 				m_agents[m_agentIndex]->StartTurn();
 			}
-		}
-	}
 
-	if (IsKeyPressed(KEY_W))
-	{
-		m_player->SpeedUp();
-		for (Agent* a : m_agents)
-		{
-			a->SpeedUp();
+			m_agents[m_agentIndex]->Update(deltaTime);
+
+			if (m_agents[m_agentIndex]->TurnComplete()) // If the agent finished its turn, move on to the next one
+			{
+				m_agentIndex++;
+				if (m_agentIndex >= m_agents.size()) // If there are no more agents in the list, the enemy turn is over
+				{
+					StartPlayerTurn();
+				}
+				else
+				{
+					m_agents[m_agentIndex]->StartTurn();
+				}
+			}
 		}
-	}
-	if (IsKeyPressed(KEY_S))
-	{
-		m_player->SlowDown();
-		for (Agent* a : m_agents)
+
+		if (IsKeyPressed(KEY_W))
 		{
-			a->SlowDown();
+			m_player->SpeedUp();
+			for (Agent* a : m_agents)
+			{
+				a->SpeedUp();
+			}
+		}
+		if (IsKeyPressed(KEY_S))
+		{
+			m_player->SlowDown();
+			for (Agent* a : m_agents)
+			{
+				a->SlowDown();
+			}
 		}
 	}
 }
 
 void TurnController::Draw()
 {
-	m_player->Draw();
-	for (Agent* a : m_agents)
-	{
-		if (!a->IsDead()) // If the agent isn't dead (just in case an agent dies but hasn't been removed from the list yet)
-		{
-			a->Draw();
-		}
-	}
-
-	if (m_isPlayerTurn && m_player->PathComplete()) // If it's the player's turn & they're not moving
+	// Draw the path to the tile the player is hovering over
+	if (m_isPlayerTurn && m_player->PathComplete() && !m_battleOver) // If it's the player's turn, they're not moving & the battle's still going
 	{
 		// Get the tile the player is hovering over
 		Vector2 mousePos = GetMousePosition();
@@ -149,17 +166,22 @@ void TurnController::Draw()
 			if (!m_hoveredPath.empty())
 			{
 				// Draw the path to the node
-				Color tileColour = {0, 0, 0, 64 };
+				Color tileColour = { 0, 0, 0, 64 };
 				float movesLeftScaled = m_player->GetMovesLeft() * m_player->GetMap()->GetTileSize(); // For checking if the tile is in range
 				for (int i = 0; i < m_hoveredPath.size(); i++)
 				{
 					if (m_hoveredPath[i]->m_gScore > movesLeftScaled) // If the tile is out of the player's max move distance
 					{
-						tileColour = { 255, 0, 0, 64}; // Change the colour to red to show it's out of range
+						tileColour = { 255, 0, 0, 64 }; // Change the colour to red to show it's out of range
 					}
 					if (i == m_hoveredPath.size() - 1) // Make tile actually being hovered over more opaque
 					{
 						tileColour.a = 128;
+						// If the tile being hovered over has an occupant that isn't the player, it's an invalid target
+						if (m_hoveredPath[i]->m_occupant && m_hoveredPath[i]->m_occupant != m_player)
+						{
+							tileColour.r = 255; // Change the colour to red to show it's invalid
+						}
 					}
 					DrawRectangle(m_hoveredPath[i]->m_position.x - (tileSize / 2), m_hoveredPath[i]->m_position.y - (tileSize / 2),
 						tileSize - 1, tileSize - 1, tileColour);
@@ -170,6 +192,38 @@ void TurnController::Draw()
 				DrawRectangle(m_hoveredTile->m_position.x - (tileSize / 2), m_hoveredTile->m_position.y - (tileSize / 2),
 					tileSize - 1, tileSize - 1, { 255, 0, 0, 128 });
 			}
+		}
+		else // Just draw the tile the player is on
+		{
+			float tileSize = m_player->GetMap()->GetTileSize();
+			glm::vec2 pos = m_player->GetPosition();
+
+			DrawRectangle(pos.x - (tileSize / 2), pos.y - (tileSize / 2),
+				tileSize - 1, tileSize - 1, { 0, 0, 0, 128 });
+		}
+	}
+
+	// Draw all the actual agents
+	m_player->Draw();
+	for (Agent* a : m_agents)
+	{
+		a->Draw();
+	}
+
+	if (!m_battleOver)
+	{
+		// Show whose turn it is
+		if (m_isPlayerTurn)
+		{
+			DrawRectangle(0, 0, 128, 28, BLACK);
+			DrawRectangle(2, 2, 124, 24, WHITE);
+			DrawText("Player turn", 4, 4, 20, BLACK);
+		}
+		else
+		{
+			DrawRectangle(0, 0, 128, 28, BLACK);
+			DrawRectangle(2, 2, 124, 24, RED);
+			DrawText("Enemy turn", 4, 4, 20, BLACK);
 		}
 	}
 }

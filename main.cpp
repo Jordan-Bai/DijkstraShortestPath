@@ -34,7 +34,7 @@ int main() {
     //--------------------------------------------------------------------------------------
     int screenWidth = 800;
     int screenHeight = 450;
-    raylib::Color textColor = raylib::Color::LightGray();
+    raylib::Color textColor = {0, 128, 255, 255};
     raylib::Window window(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     NodeMap map;
@@ -49,7 +49,7 @@ int main() {
     myPlayer.SetSpeed(256);
     myPlayer.SetColour({ 0, 0, 0, 255 });
     myPlayer.SetMaxMove(15);
-    myPlayer.SetHealth(20);
+    myPlayer.SetHealth(1);
 
     // Create transtions
     //-----------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ int main() {
     Agent enemy1(&map, &fsm1); // Will only ever attack, never flee
     enemy1.SetNode(map.GetNode(1, 13));
     enemy1.SetSpeed(512);
-    enemy1.SetMaxMove(4);
+    enemy1.SetMaxMove(6);
     enemy1.SetHealth(3);
 
     // Have to create new versions of these states since they'll have different transitions
@@ -91,7 +91,7 @@ int main() {
     Agent enemy2(&map, &fsm2); // Will flee if health is low
     enemy2.SetNode(map.GetNode(16, 1));
     enemy2.SetSpeed(512);
-    enemy2.SetMaxMove(4);
+    enemy2.SetMaxMove(6);
     enemy2.SetHealth(3);
     //-----------------------------------------------------------------------------------------------------
 
@@ -110,7 +110,6 @@ int main() {
     enemy3.SetSpeed(512);
     enemy3.SetMaxMove(6);
     enemy3.SetHealth(3);
-    enemy3.SetColour({ 0, 255, 0, 255 }); // Green
     //-----------------------------------------------------------------------------------------------------
 
     // Create melee & ranged enemy
@@ -169,6 +168,26 @@ int main() {
 
             map.Draw();
             tc.Draw();
+
+            if (tc.BattleOver())
+            {
+                int mapx = map.GetWidth() * map.GetTileSize();
+                int mapy = map.GetHeight() * map.GetTileSize();
+                int fontSize = mapx / 10;
+
+                if (myPlayer.IsDead()) // Means the player lost
+                {
+                    int x = (mapx / 2) - (fontSize * 3);
+                    int y = (mapy / 2) - (fontSize * 0.5);
+                    textColor.DrawText("GAME OVER", x, y, fontSize);
+                }
+                else
+                {
+                    int x = (mapx / 2) - (fontSize * 2.25);
+                    int y = (mapy / 2) - (fontSize * 0.5);
+                    textColor.DrawText("YOU WON", x, y, fontSize);
+                }
+            }
         }
         EndDrawing();
         //----------------------------------------------------------------------------------

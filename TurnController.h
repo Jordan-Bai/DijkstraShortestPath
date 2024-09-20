@@ -10,6 +10,7 @@ class TurnController
 	int m_agentIndex;
 	bool m_isPlayerTurn = true;
 	int m_turnCount;
+	bool m_battleOver = false;
 
 	// So we only have to calculate the path to the hovered tile when it changes, instead of every time draw is called
 	Node* m_hoveredTile = nullptr;
@@ -22,7 +23,7 @@ public:
 
 	void StartPlayerTurn();
 	void StartEnemyTurn();
-	void EndBattle();
+	bool BattleOver() const;
 
 	void Update(float deltaTime);
 	void Draw();

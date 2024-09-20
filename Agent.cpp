@@ -5,6 +5,7 @@ Agent::Agent(NodeMap* map, Behaviour* behaviour)
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;
+	m_behaviour->Enter(this);
 }
 
 void Agent::SetSpeed(float speed)
@@ -30,7 +31,7 @@ void Agent::SetColour(Color colour)
 void Agent::SetMaxMove(int max)
 {
 	m_maxMove = max;
-	m_movesLeft = max; // If I end up setting max move DURING a turn this could cause issues
+	m_movesLeft = max;
 }
 
 void Agent::SetHealth(int health)
@@ -229,9 +230,12 @@ void Agent::Update(float deltaTime)
 
 void Agent::Draw()
 {
-	m_pathAgent.Draw(m_colour);
+	if (m_health > 0) // Only draw the agent if they're alive
+	{
+		m_pathAgent.Draw(m_colour);
 
-	glm::vec2 pos = m_pathAgent.GetPosition();
-	std::string healthText = std::to_string(m_health);
-	raylib::Color::White().DrawText(healthText, pos.x - 3, pos.y - 4, 10);
+		glm::vec2 pos = m_pathAgent.GetPosition();
+		std::string healthText = std::to_string(m_health);
+		raylib::Color::White().DrawText(healthText, pos.x - 3, pos.y - 4, 10);
+	}
 }

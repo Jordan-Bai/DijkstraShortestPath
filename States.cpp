@@ -29,66 +29,6 @@ void State::Exit(Agent* agent)
 }
 
 
-// GoToPoint
-void GoToPoint::Update(Agent* agent, float deltaTime)
-{
-    if (IsMouseButtonPressed(0))
-    {
-        Vector2 mousePos = GetMousePosition();
-        Node* target = agent->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
-        float maxMoveScaled = agent->GetMaxMoveScaled();
-
-        std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), target, maxMoveScaled);
-        if (desiredPath.empty()) // If there's no path to the target, don't move
-        {
-            return;
-        }
-
-        if (target->m_gScore <= maxMoveScaled) // If the target node is in range, go to it
-        {
-            agent->GoTo(target);
-        }
-    }
-}
-
-// Wander
-void Wander::Enter(Agent* agent)
-{
-    // Make agent blue when wandering
-    agent->SetColour({ 0, 0, 255, 255 });
-
-}
-
-void Wander::Update(Agent* agent, float deltaTime)
-{
-    if (agent->PathComplete()) // If the agent has reached its destination, go to a random new location
-    {
-        Node* target = agent->GetMap()->GetRandomNode();
-        agent->GoTo(target);
-    }
-}
-
-// Follow
-Follow::Follow(Agent* target)
-	:m_target(target)
-{
-}
-
-void Follow::Enter(Agent* agent)
-{
-    // Make agent purple when following
-    agent->SetColour({ 255, 0, 255, 255 });
-}
-
-void Follow::Update(Agent* agent, float deltaTime)
-{
-    if (m_lastTargetNode != m_target->GetCurrentNode()) // If the target has moved, repath to them
-    {
-        m_lastTargetNode = m_target->GetCurrentNode();
-        agent->GoTo(m_lastTargetNode);
-    }
-}
-
 // Player
 void Player::Update(Agent* agent, float deltaTime)
 {
@@ -96,6 +36,14 @@ void Player::Update(Agent* agent, float deltaTime)
     {
         Vector2 mousePos = GetMousePosition();
         Node* target = agent->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
+
+        // If the target has an occupant that isn't this agent, it's an invalid target
+        if (target->m_occupant && target->m_occupant != agent)
+        {
+            return;
+        }
+
+        // Otherwise, pathfind to it
         std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), target, agent->GetMaxMoveScaled());
         if (desiredPath.empty()) // If there's no path to the target, don't move
         {
@@ -125,9 +73,9 @@ void Player::Attack(Agent* agent)
             neighbours[i].m_target->m_occupant->TakeDamage(agent->GetAttack()); // Attack that agent
         }
     }
-    std::cout << "ATTACKING" << std::endl;
     agent->FinishTurn();
 }
+
 
 // MeleeChase
 MeleeChase::MeleeChase(Agent* target)
@@ -148,19 +96,12 @@ void MeleeChase::Update(Agent* agent, float deltaTime)
         {
             float maxMoveScaled = agent->GetMaxMoveScaled();
             std::vector<Node*> desiredPath = PathSearch(agent->GetCurrentNode(), m_target->GetCurrentNode(), maxMoveScaled);
-
-            if (desiredPath.empty()) // If there's no path to the target, don't move
-            {
-                std::cout << "No path" << std::endl;
-                agent->StopMovement();
-                return;
-            }
             agent->FollowPath(desiredPath);
 
-            // FOR TESTING
-            //-----------------------------------------------------------------------------------------------------
-            agent->StopMovement();
-            //-----------------------------------------------------------------------------------------------------
+            if (agent->PathComplete()) // Means it couldn't follow that path, so end turn
+            {
+                agent->FinishTurn();
+            }
         }
         else // If they can't do anything, finish the turn
         {
@@ -193,7 +134,7 @@ void MeleeAttack::Update(Agent* agent, float deltaTime)
 
 // Ranged Chase
 RangedChase::RangedChase(Agent* target)
-	: m_los(target)
+	: m_losParam(target)
 {
 }
 
@@ -208,15 +149,13 @@ void RangedChase::Update(Agent* agent, float deltaTime)
     {
         if (agent->GetMovesLeft() > 0) // If they still have movement left, move
         {
-            std::vector<Node*> path = ClosestTarget(agent, &m_los);
+            std::vector<Node*> path = ClosestTarget(agent, &m_losParam);
             agent->FollowPath(path);
 
             if (agent->PathComplete()) // Means it couldn't follow that path, so end turn
             {
                 agent->FinishTurn();
             }
-
-            //agent->StopMovement(); // FOR TESTING
         }
         else // Otherwise, finish turn
         {
@@ -228,13 +167,13 @@ void RangedChase::Update(Agent* agent, float deltaTime)
 
 // Ranged Attack
 RangedAttack::RangedAttack(Agent* target)
-	: m_target(target), m_los(target)
+	: m_target(target), m_losParam(target)
 {
 }
 
 void RangedAttack::Enter(Agent* agent)
 {
-    agent->SetColour({ 255, 0, 255, 255 }); // Make agent purple
+    agent->SetColour({ 200, 0, 255, 255 }); // Make agent purple
 }
 
 void RangedAttack::Update(Agent* agent, float deltaTime)
@@ -243,7 +182,7 @@ void RangedAttack::Update(Agent* agent, float deltaTime)
     {
         if (agent->GetMovesLeft() > 0) // If they still have movement left, move
         {
-            std::vector<Node*> betterPath = BestTarget(agent, &m_los);
+            std::vector<Node*> betterPath = BestTarget(agent, &m_losParam);
             agent->FollowPath(betterPath);
             agent->StopMovement(); // FOR TESTING
         }
@@ -258,14 +197,14 @@ void RangedAttack::Update(Agent* agent, float deltaTime)
 
 
 // Fleeing
-Fleeing::Fleeing(Agent* target)
-    : m_fleeParam(target)
+Fleeing::Fleeing(Agent* agent)
+    : m_fleeParam(agent)
 {
 }
 
 void Fleeing::Enter(Agent* agent)
 {
-    agent->SetColour({ 255, 128, 0, 255 }); // Make agent orange when fleeing
+    agent->SetColour({ 255, 128, 0, 255 }); // Make agent orange
 }
 
 void Fleeing::Update(Agent* agent, float deltaTime)
@@ -284,3 +223,25 @@ void Fleeing::Update(Agent* agent, float deltaTime)
         }
     }
 }
+
+
+// Damaged
+//Damaged::Damaged(float animTime)
+//    : m_maxAnimTime(animTime), m_timer(animTime)
+//{
+//}
+//
+//void Damaged::Enter(Agent* agent)
+//{
+//    agent->SetColour({ 255, 128, 0, 255 }); // Make agent orange
+//    m_timer = m_maxAnimTime;
+//}
+//
+//void Damaged::Update(Agent* agent, float deltaTime)
+//{
+//    m_timer -= deltaTime;
+//    if (m_timer <= 0)
+//    {
+//
+//    }
+//}

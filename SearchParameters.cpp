@@ -3,9 +3,9 @@
 #include <algorithm> // For std::find & heap operations
 #include "Agent.h"
 
-float SearchParam::GetCost(Edge* edge) // Search parameters won't apply any changes to the edge cost by default
+float SearchParam::GetHScore(Edge* edge) // Search parameters won't apply any changes to the edge cost by default
 {
-	return edge->m_cost;
+	return 0;
 }
 
 
@@ -37,7 +37,7 @@ bool FleeParam::ValidTarget(Node* node)
 	return true; // Otherwise, any tile is valid
 }
 
-float FleeParam::GetCost(Edge* edge)
+float FleeParam::GetHScore(Edge* edge)
 {
 	float cost = edge->m_cost;
 	for (Edge e : edge->m_target->m_connections)
@@ -51,12 +51,12 @@ float FleeParam::GetCost(Edge* edge)
 }
 
 
-LineOfSight::LineOfSight(Agent* target)
+LineOfSightParam::LineOfSightParam(Agent* target)
 	: m_target(target)
 {
 }
 
-float LineOfSight::Evaluate(Node* node)
+float LineOfSightParam::Evaluate(Node* node)
 {
 	if (node->m_position.x == m_target->GetPosition().x) // If they're on the same x axis (line of sight vertically)
 	{
@@ -132,7 +132,7 @@ float LineOfSight::Evaluate(Node* node)
 	return glm::length(distance); // Return the distance from the target (prefers spots further away)
 }
 
-bool LineOfSight::ValidTarget(Node* node)
+bool LineOfSightParam::ValidTarget(Node* node)
 {
 	if (node->m_position.x == m_target->GetPosition().x) // If they're on the same x axis (line of sight vertically)
 	{
@@ -264,7 +264,7 @@ std::vector<Node*> BestTarget(Agent* agent, SearchParam* param)
 				if (std::find(openList.begin(), openList.end(), targetNode) == openList.end()) // If the target isn't in the open list already
 				{
 					targetNode->m_gScore = gScore;
-					targetNode->m_hScore = param->GetCost(&currentNode->m_connections[i]);
+					targetNode->m_hScore = param->GetHScore(&currentNode->m_connections[i]);
 					// ^ How much the agent wants to move there (determined by search parameters)
 					targetNode->m_fScore = gScore + targetNode->m_hScore;
 					targetNode->m_previousNode = currentNode;
@@ -381,7 +381,7 @@ std::vector<Node*> ClosestTarget(Agent* agent, SearchParam* param)
 				if (std::find(openList.begin(), openList.end(), targetNode) == openList.end()) // If the target isn't in the open list already
 				{
 					targetNode->m_gScore = gScore;
-					targetNode->m_hScore = param->GetCost(&currentNode->m_connections[i]);
+					targetNode->m_hScore = param->GetHScore(&currentNode->m_connections[i]);
 					// ^ How much the agent wants to move there (determined by search parameters)
 					targetNode->m_fScore = gScore + targetNode->m_hScore;
 					targetNode->m_previousNode = currentNode;

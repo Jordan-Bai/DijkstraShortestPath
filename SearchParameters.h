@@ -10,7 +10,7 @@ public:
 	virtual float Evaluate(Node* node) = 0; // Ranks how good the node is
 	virtual bool ValidTarget(Node* node) = 0; // Returns whether this node fits the search criteria
 
-	virtual float GetCost(Edge* edge);
+	virtual float GetHScore(Edge* edge);
 };
 
 class FleeParam : public SearchParam
@@ -22,17 +22,17 @@ public:
 	float Evaluate(Node* node) override;
 	bool ValidTarget(Node* node) override;
 
-	float GetCost(Edge* edge) override;
+	float GetHScore(Edge* edge) override;
 };
 
-class LineOfSight : public SearchParam
+class LineOfSightParam : public SearchParam
 {
 	Agent* m_target; // The agent being targeted
 public:
-	LineOfSight(Agent* target);
-	bool ValidTarget(Node* node) override;
+	LineOfSightParam(Agent* target);
 
 	float Evaluate(Node* node) override;
+	bool ValidTarget(Node* node) override;
 };
 
 std::vector<Node*> BestTarget(Agent* agent, SearchParam* param); // Returns path to the best suited node in range

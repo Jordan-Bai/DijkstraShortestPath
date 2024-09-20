@@ -18,6 +18,7 @@ struct Transition
 class Behaviour // Abstract base class for states & fsm (so an agent can take a single state OR an fsm as its behaviour);
 {
 public:
+	virtual void Enter(Agent* agent) = 0;
 	virtual void Update(Agent* agent, float deltaTime) = 0; // "Pure virtual" function
 };
 
@@ -30,34 +31,9 @@ public:
 	void AddTransition(Transition transition);
 	void AddTransition(Condition* condition, State* targetState);
 
-	virtual void Enter(Agent* agent); // For any special behaviours when the state begins
+	virtual void Enter(Agent* agent) override; 
 	virtual void Update(Agent* agent, float deltaTime) = 0;	
 	virtual void Exit(Agent* agent); // For any special behaviours when the state ends
-};
-
-class GoToPoint : public State
-{
-public:
-	void Update(Agent* agent, float deltaTime) override;
-};
-
-class Wander : public State
-{
-public:
-	void Enter(Agent* agent) override;
-	void Update(Agent* agent, float deltaTime) override;
-};
-
-class Follow : public State
-{
-	Agent* m_target;
-	Node* m_lastTargetNode;
-
-public:
-	Follow(Agent* target);
-
-	void Enter(Agent* agent) override;
-	void Update(Agent* agent, float deltaTime) override;
 };
 
 class Player : public State
@@ -77,28 +53,22 @@ public:
 
 	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
-
-	void Move(Agent* agent);
 };
 
 class MeleeAttack : public State
 {
 	Agent* m_target;
-	//float m_range; // How close they have to be to attack
 	
 public:
 	MeleeAttack(Agent* target);
 
 	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
-
-	//void Move(Agent* agent);
-	//void Attack(Agent* agent);
 };
 
 class RangedChase : public State
 {
-	LineOfSight m_los;
+	LineOfSightParam m_losParam;
 
 public:
 	RangedChase(Agent* target);
@@ -110,7 +80,7 @@ public:
 class RangedAttack : public State
 {
 	Agent* m_target;
-	LineOfSight m_los;
+	LineOfSightParam m_losParam;
 
 public:
 	RangedAttack(Agent* target);
@@ -124,8 +94,20 @@ class Fleeing : public State
 	FleeParam m_fleeParam;
 
 public:
-	Fleeing(Agent* target);
+	Fleeing(Agent* agent);
 
 	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
 };
+
+//class Damaged : public State // Does the damaged animation
+//{
+//	float m_maxAnimTime; // How long does the animation last?
+//	float m_timer; // How long the animation has left
+//
+//public:
+//	Damaged(float animTime);
+//
+//	void Enter(Agent* agent) override;
+//	void Update(Agent* agent, float deltaTime) override;
+//};

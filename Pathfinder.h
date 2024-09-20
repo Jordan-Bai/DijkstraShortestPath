@@ -83,7 +83,10 @@ public:
 	Node* GetNode(int column, int row) const; // Gets the node from a row & column
 	Node* GetNearestNode(int x, int y) const; // Gets the node from a screen position
 	Node* GetRandomNode() const;
+
 	float GetTileSize() const;
+	int GetWidth() const;
+	int GetHeight() const;
 
 	void Draw();
 };

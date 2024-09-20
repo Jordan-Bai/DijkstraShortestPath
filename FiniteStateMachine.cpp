@@ -5,6 +5,11 @@ FiniteStateMachine::FiniteStateMachine(State* state)
 {
 }
 
+void FiniteStateMachine::Enter(Agent* agent)
+{
+	m_currentState->Enter(agent);
+}
+
 void FiniteStateMachine::Update(Agent* agent, float deltaTime)
 {
 	State* nextState = nullptr;
