@@ -34,3 +34,12 @@ void FiniteStateMachine::Update(Agent* agent, float deltaTime)
 
 	m_currentState->Update(agent, deltaTime);
 }
+
+std::string FiniteStateMachine::GetID()
+{
+	if (m_currentState)
+	{
+		return m_currentState->GetID();
+	}
+	return "/n";
+}

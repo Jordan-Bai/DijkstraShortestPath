@@ -28,8 +28,18 @@ void State::Exit(Agent* agent)
 {
 }
 
+std::string State::GetID()
+{
+    return m_id; 
+}
+
 
 // Player
+Player::Player()
+{
+    m_id = "Player";
+}
+
 void Player::Update(Agent* agent, float deltaTime)
 {
     if (IsMouseButtonPressed(0))
@@ -81,6 +91,7 @@ void Player::Attack(Agent* agent)
 MeleeChase::MeleeChase(Agent* target)
 	: m_target(target)
 {
+    m_id = "MeleeChase";
 }
 
 void MeleeChase::Enter(Agent* agent)
@@ -115,6 +126,7 @@ void MeleeChase::Update(Agent* agent, float deltaTime)
 MeleeAttack::MeleeAttack(Agent* target)
 	: m_target(target)
 {
+    m_id = "MeleeAttack";
 }
 
 void MeleeAttack::Enter(Agent* agent)
@@ -136,6 +148,7 @@ void MeleeAttack::Update(Agent* agent, float deltaTime)
 RangedChase::RangedChase(Agent* target)
 	: m_losParam(target)
 {
+    m_id = "RangedChase";
 }
 
 void RangedChase::Enter(Agent* agent)
@@ -169,6 +182,7 @@ void RangedChase::Update(Agent* agent, float deltaTime)
 RangedAttack::RangedAttack(Agent* target)
 	: m_target(target), m_losParam(target)
 {
+    m_id = "RangedAttack";
 }
 
 void RangedAttack::Enter(Agent* agent)
@@ -188,7 +202,6 @@ void RangedAttack::Update(Agent* agent, float deltaTime)
         }
         else // Otherwise, attack
         {
-            std::cout << "SHOOT" << std::endl;
             m_target->TakeDamage(agent->GetAttack());
             agent->FinishTurn();
         }
@@ -200,6 +213,7 @@ void RangedAttack::Update(Agent* agent, float deltaTime)
 Fleeing::Fleeing(Agent* agent)
     : m_fleeParam(agent)
 {
+    m_id = "Fleeing";
 }
 
 void Fleeing::Enter(Agent* agent)
@@ -223,25 +237,3 @@ void Fleeing::Update(Agent* agent, float deltaTime)
         }
     }
 }
-
-
-// Damaged
-//Damaged::Damaged(float animTime)
-//    : m_maxAnimTime(animTime), m_timer(animTime)
-//{
-//}
-//
-//void Damaged::Enter(Agent* agent)
-//{
-//    agent->SetColour({ 255, 128, 0, 255 }); // Make agent orange
-//    m_timer = m_maxAnimTime;
-//}
-//
-//void Damaged::Update(Agent* agent, float deltaTime)
-//{
-//    m_timer -= deltaTime;
-//    if (m_timer <= 0)
-//    {
-//
-//    }
-//}

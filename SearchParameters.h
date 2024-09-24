@@ -2,8 +2,10 @@
 
 #include "Pathfinder.h"
 
-class SearchParam
+class SearchParam // Abstract base class for Search parameters
 {
+protected:
+	Agent* m_target;
 public:
 	// Separate functions for Evaluate & Valid target, so we can use a search parameter to either search for the best
 	// node in range, or find the closest node fitting the criteria
@@ -15,7 +17,6 @@ public:
 
 class FleeParam : public SearchParam
 {
-	Agent* m_target; // The agent being fled from
 public:
 	FleeParam(Agent* target);
 
@@ -27,7 +28,6 @@ public:
 
 class LineOfSightParam : public SearchParam
 {
-	Agent* m_target; // The agent being targeted
 public:
 	LineOfSightParam(Agent* target);
 

@@ -10,8 +10,8 @@ float SearchParam::GetHScore(Edge* edge) // Search parameters will return a hSco
 
 
 FleeParam::FleeParam(Agent* target)
-	: m_target(target)
 {
+	m_target = target;
 }
 
 float FleeParam::Evaluate(Node* node)
@@ -52,8 +52,8 @@ float FleeParam::GetHScore(Edge* edge)
 
 
 LineOfSightParam::LineOfSightParam(Agent* target)
-	: m_target(target)
 {
+	m_target = target;
 }
 
 float LineOfSightParam::Evaluate(Node* node)

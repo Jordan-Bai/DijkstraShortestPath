@@ -20,11 +20,16 @@ class Behaviour // Abstract base class for states & fsm (so an agent can take a 
 public:
 	virtual void Enter(Agent* agent) = 0;
 	virtual void Update(Agent* agent, float deltaTime) = 0; // "Pure virtual" function
+	virtual std::string GetID() = 0;
 };
 
 class State : public Behaviour // Abstract base class for all states
 {
 	std::vector<Transition> m_transitions;
+
+protected:
+	std::string m_id = "/n"; // For checking what the current state is
+	// Null terminator by default, if it stays that way shows there's been an error
 
 public:
 	std::vector<Transition> GetTransitions();
@@ -34,11 +39,15 @@ public:
 	virtual void Enter(Agent* agent) override; 
 	virtual void Update(Agent* agent, float deltaTime) = 0;	
 	virtual void Exit(Agent* agent); // For any special behaviours when the state ends
+
+	std::string GetID() override;
 };
 
 class Player : public State
 {
 public:
+	Player();
+
 	void Update(Agent* agent, float deltaTime) override;
 
 	void Attack(Agent* agent);
@@ -99,15 +108,3 @@ public:
 	void Enter(Agent* agent) override;
 	void Update(Agent* agent, float deltaTime) override;
 };
-
-//class Damaged : public State // Does the damaged animation
-//{
-//	float m_maxAnimTime; // How long does the animation last?
-//	float m_timer; // How long the animation has left
-//
-//public:
-//	Damaged(float animTime);
-//
-//	void Enter(Agent* agent) override;
-//	void Update(Agent* agent, float deltaTime) override;
-//};
