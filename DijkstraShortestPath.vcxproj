@@ -132,9 +132,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Actions.cpp" />
     <ClCompile Include="Agent.cpp" />
     <ClCompile Include="Conditions.cpp" />
-    <ClCompile Include="FiniteStateMachine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathAgent.cpp" />
     <ClCompile Include="Pathfinding.cpp" />
@@ -143,9 +143,9 @@
     <ClCompile Include="TurnController.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actions.h" />
     <ClInclude Include="Agent.h" />
     <ClInclude Include="Conditions.h" />
-    <ClInclude Include="FiniteStateMachine.h" />
     <ClInclude Include="PathAgent.h" />
     <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="SearchParameters.h" />

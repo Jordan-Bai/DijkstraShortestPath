@@ -26,7 +26,6 @@
 #include "Agent.h"
 #include "States.h"
 #include "Conditions.h"
-#include "FiniteStateMachine.h"
 #include "TurnController.h"
 
 int main() {
@@ -62,13 +61,13 @@ int main() {
 
     // Create melee enemies
     //-----------------------------------------------------------------------------------------------------
-    MeleeChase mChase1(&myPlayer);
+    /*MeleeChase mChase1(&myPlayer);
     MeleeAttack mAttack1(&myPlayer);
 
     mChase1.AddTransition(&inRange, &mAttack1);
     mAttack1.AddTransition(&notInRange, &mChase1);
 
-    FiniteStateMachine fsm1(&mChase1);
+    FiniteStateMachine fsm1(&mChase1);*/
 
     Agent enemy1(&map, &fsm1); // Will only ever attack, never flee
     enemy1.SetNode(map.GetNode(1, 13));
@@ -77,7 +76,7 @@ int main() {
     enemy1.SetHealth(3);
 
     // Have to create new versions of these states since they'll have different transitions
-    MeleeChase mChase2(&myPlayer);
+    /*MeleeChase mChase2(&myPlayer);
     MeleeAttack mAttack2(&myPlayer);
     Fleeing flee(&myPlayer);
 
@@ -86,7 +85,7 @@ int main() {
     mAttack2.AddTransition(&notInRange, &mChase2);
     mAttack2.AddTransition(&lowHP, &flee);
 
-    FiniteStateMachine fsm2(&mChase2);
+    FiniteStateMachine fsm2(&mChase2);*/
 
     Agent enemy2(&map, &fsm2); // Will flee if health is low
     enemy2.SetNode(map.GetNode(16, 1));
@@ -97,13 +96,13 @@ int main() {
 
     // Create ranged enemy
     //-----------------------------------------------------------------------------------------------------
-    RangedChase rChase1(&myPlayer);
+    /*RangedChase rChase1(&myPlayer);
     RangedAttack rAttack1(&myPlayer);
 
     rChase1.AddTransition(&hasLOS, &rAttack1);
     rAttack1.AddTransition(&noLOS, &rChase1);
 
-    FiniteStateMachine fsm3(&rChase1);
+    FiniteStateMachine fsm3(&rChase1);*/
 
     Agent enemy3(&map, &fsm3);
     enemy3.SetNode(map.GetNode(16, 13));
@@ -114,25 +113,25 @@ int main() {
 
     // Create melee & ranged enemy
     //-----------------------------------------------------------------------------------------------------
-    MeleeChase mChase3(&myPlayer);
-    MeleeAttack mAttack3(&myPlayer);
-    //Can just reuse the ranged states from the previous enemy, as the transitions will be the same
+    //MeleeChase mChase3(&myPlayer);
+    //MeleeAttack mAttack3(&myPlayer);
+    ////Can just reuse the ranged states from the previous enemy, as the transitions will be the same
 
-    CombinedCon lowHPHasLOS(&lowHP, &hasLOS, false);
+    //CombinedCon lowHPHasLOS(&lowHP, &hasLOS, false);
 
-    // Melee transitions
-    mChase3.AddTransition(&inRange, &mAttack3);
-    mAttack3.AddTransition(&notInRange, &mChase3);
-    // Melee-Ranged transitions (if low hp, switch to ranged)
-    mChase3.AddTransition(&lowHP, &rChase1);
-    mAttack3.AddTransition(&lowHP, &rChase1);
-    mChase3.AddTransition(&lowHPHasLOS, &rAttack1);
-    mAttack3.AddTransition(&lowHPHasLOS, &rAttack1);
-    // Ranged transitions
-    rChase1.AddTransition(&hasLOS, &rAttack1);
-    rAttack1.AddTransition(&noLOS, &rChase1);
+    //// Melee transitions
+    //mChase3.AddTransition(&inRange, &mAttack3);
+    //mAttack3.AddTransition(&notInRange, &mChase3);
+    //// Melee-Ranged transitions (if low hp, switch to ranged)
+    //mChase3.AddTransition(&lowHP, &rChase1);
+    //mAttack3.AddTransition(&lowHP, &rChase1);
+    //mChase3.AddTransition(&lowHPHasLOS, &rAttack1);
+    //mAttack3.AddTransition(&lowHPHasLOS, &rAttack1);
+    //// Ranged transitions
+    //rChase1.AddTransition(&hasLOS, &rAttack1);
+    //rAttack1.AddTransition(&noLOS, &rChase1);
 
-    FiniteStateMachine fsm4(&mChase3);
+    //FiniteStateMachine fsm4(&mChase3);
 
     Agent enemy4(&map, &fsm4);
     enemy4.SetNode(map.GetNode(8, 10));

@@ -1,25 +1,14 @@
 #pragma once
 
+#include "States.h"
+
 class Agent; // Need to declare agent here, so condition & agent can reference each other
 // (agent includes state which includes transition which includes condition so we can't just include the agent header)
 
-class Condition // Abstract base class for all conditions
+class Condition : public Behaviour // Abstract base class for all conditions
 {
 protected:
 	bool m_doInverse; // If true, return the opposite of what it would normally return
-public:
-	virtual bool IsTrue(Agent* agent) = 0;
-};
-
-class CombinedCon : public Condition // Essentially acts as an "and" for conditions
-{
-	Condition* m_con1;
-	Condition* m_con2;
-
-public:
-	CombinedCon(Condition* con1, Condition* con2, bool doInverse);
-
-	bool IsTrue(Agent* agent) override;
 };
 
 class CloserThan : public Condition
@@ -30,7 +19,7 @@ class CloserThan : public Condition
 public:
 	CloserThan(Agent* target, float distance, bool doInverse);
 
-	bool IsTrue(Agent* agent) override;
+	bool Execute(Agent* agent) override;
 };
 
 class LowHealth : public Condition
@@ -40,7 +29,7 @@ class LowHealth : public Condition
 public:
 	LowHealth(int hpThreshold, bool doInverse);
 
-	bool IsTrue(Agent* agent) override;
+	bool Execute(Agent* agent) override;
 };
 
 class HasLineOfSight : public Condition
@@ -50,5 +39,5 @@ class HasLineOfSight : public Condition
 public:
 	HasLineOfSight(Agent* target, bool doInverse);
 
-	bool IsTrue(Agent* agent) override;
+	bool Execute(Agent* agent) override;
 };

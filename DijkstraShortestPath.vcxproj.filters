@@ -36,13 +36,13 @@
     <ClCompile Include="Conditions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FiniteStateMachine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TurnController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SearchParameters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,13 +62,13 @@
     <ClInclude Include="Conditions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FiniteStateMachine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TurnController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SearchParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
