@@ -49,7 +49,7 @@ int main() {
     myPlayer.SetSpeed(256);
     myPlayer.SetColour({ 0, 0, 0, 255 });
     myPlayer.SetMaxMove(15);
-    myPlayer.SetHealth(1);
+    myPlayer.SetHealth(20);
 
     // Create transtions
     //-----------------------------------------------------------------------------------------------------
@@ -116,8 +116,7 @@ int main() {
     //-----------------------------------------------------------------------------------------------------
     MeleeChase mChase3(&myPlayer);
     MeleeAttack mAttack3(&myPlayer);
-    RangedChase rChase2(&myPlayer);
-    RangedAttack rAttack2(&myPlayer);
+    //Can just reuse the ranged states from the previous enemy, as the transitions will be the same
 
     CombinedCon lowHPHasLOS(&lowHP, &hasLOS, false);
 
@@ -125,13 +124,13 @@ int main() {
     mChase3.AddTransition(&inRange, &mAttack3);
     mAttack3.AddTransition(&notInRange, &mChase3);
     // Melee-Ranged transitions (if low hp, switch to ranged)
-    mChase3.AddTransition(&lowHP, &rChase2);
-    mAttack3.AddTransition(&lowHP, &rChase2);
-    mChase3.AddTransition(&lowHPHasLOS, &rAttack2);
-    mAttack3.AddTransition(&lowHPHasLOS, &rAttack2);
+    mChase3.AddTransition(&lowHP, &rChase1);
+    mAttack3.AddTransition(&lowHP, &rChase1);
+    mChase3.AddTransition(&lowHPHasLOS, &rAttack1);
+    mAttack3.AddTransition(&lowHPHasLOS, &rAttack1);
     // Ranged transitions
-    rChase2.AddTransition(&hasLOS, &rAttack2);
-    rAttack2.AddTransition(&noLOS, &rChase2);
+    rChase1.AddTransition(&hasLOS, &rAttack1);
+    rAttack1.AddTransition(&noLOS, &rChase1);
 
     FiniteStateMachine fsm4(&mChase3);
 

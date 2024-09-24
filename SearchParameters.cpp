@@ -3,7 +3,7 @@
 #include <algorithm> // For std::find & heap operations
 #include "Agent.h"
 
-float SearchParam::GetHScore(Edge* edge) // Search parameters won't apply any changes to the edge cost by default
+float SearchParam::GetHScore(Edge* edge) // Search parameters will return a hScore of 0 by default
 {
 	return 0;
 }
@@ -31,7 +31,7 @@ bool FleeParam::ValidTarget(Node* node)
 	{
 		if (e.m_target->m_occupant == m_target) // If an adjacent tile contains the agent being fled from
 		{
-			return false; // Don't flee there (don't want to flee to a tile near the agent
+			return false; // Don't flee there (don't want to flee to a tile near the agent)
 		}
 	}
 	return true; // Otherwise, any tile is valid
