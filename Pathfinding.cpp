@@ -7,6 +7,19 @@
 
 #include "Pathfinder.h"
 
+NodeMap::~NodeMap()
+{
+	for (int i = 0; i < m_width * m_height; i++)
+	{
+		if (m_nodes[i]) // If there's a node at this index, delete it
+		{
+			delete m_nodes[i];
+		}
+	}
+
+	delete[] m_nodes;
+}
+
 void NodeMap::Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize)
 {
 	m_height = asciiMap.size(); // The number of strings in the vector, aka the number of lines

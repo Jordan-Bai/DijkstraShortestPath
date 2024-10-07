@@ -55,7 +55,7 @@ struct Node
 	{
 		if (other == nullptr)
 		{
-			std::cout << "UH OH" << std::endl;
+			std::cout << "CONNECTION FAILED" << std::endl;
 			return;
 		}
 
@@ -73,6 +73,8 @@ class NodeMap
 	const char m_wallTile = '#'; // Character that represents a wall tile
 
 public:
+	~NodeMap();
+
 	void Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize); // Creates a Node map from a vector of strings
 	void Initialise(std::string fileName, glm::vec2 screenSize); // Creates a Node map from a text file
 
