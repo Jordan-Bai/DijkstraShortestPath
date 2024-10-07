@@ -33,6 +33,16 @@ public:
 	bool Execute(Agent* agent) override;
 };
 
+class RangedAdjust : public Behaviour
+{
+	LineOfSightParam m_losParam;
+
+public:
+	RangedAdjust(Agent* target);
+
+	bool Execute(Agent* agent) override;
+};
+
 class RangedAttack : public Behaviour
 {
 	Agent* m_target;

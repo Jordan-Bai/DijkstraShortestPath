@@ -232,7 +232,9 @@ std::vector<Node*> BestTarget(Agent* agent, SearchParam* param)
 		Node* currentNode = openList.front(); // Get the node at the front of the list
 
 		float score = param->Evaluate(currentNode);
-		if (score > currentBestScore) // If this node is a better target, make it the current best node
+		// If this node is a better target, make it the current best node
+		if (score > currentBestScore 
+			&& !currentNode->m_occupant) // Can't already have an occupant
 		{
 			currentBestScore = score;
 			currentBestNode = currentNode;
@@ -293,7 +295,7 @@ std::vector<Node*> BestTarget(Agent* agent, SearchParam* param)
 		}
 	}
 
-	//agent->GetCurrentNode()->m_occupant = agent; // Put the agent back before returning anything
+	agent->GetCurrentNode()->m_occupant = agent; // Put the agent back before returning anything
 
 	if (currentBestNode == startNode) // If no better node was found
 	{

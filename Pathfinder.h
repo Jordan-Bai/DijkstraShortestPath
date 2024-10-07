@@ -77,6 +77,10 @@ class NodeMap
 	const char m_wallTile = '#'; // Character that represents a wall tile
 
 public:
+	NodeMap() = default;
+	NodeMap(const NodeMap& other) = delete;
+	~NodeMap();
+
 	void Initialise(std::vector<std::string> asciiMap, glm::vec2 screenSize); // Creates a Node map from a vector of strings
 	void Initialise(std::string fileName, glm::vec2 screenSize); // Creates a Node map from a text file
 
@@ -89,6 +93,8 @@ public:
 	int GetHeight() const;
 
 	void Draw();
+
+	NodeMap* operator=(const NodeMap& other) = delete;
 };
 
 inline bool greaterComp(const Node* node1, const Node* node2) // Need to use this as the comparison because otherwise we couldn't compare pointers

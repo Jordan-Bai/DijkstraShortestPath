@@ -71,7 +71,13 @@ RangedChase::RangedChase(Agent* target)
 
 bool RangedChase::Execute(Agent* agent)
 {
-	// DO ACTION
+	std::vector<Node*> path = ClosestTarget(agent, &m_losParam);
+	agent->FollowPath(path);
+	
+	if (agent->PathComplete()) // Means it couldn't follow that path, so stop moving
+	{
+		agent->StopMovement();
+	}
 
 	return true;
 }
@@ -96,6 +102,29 @@ bool RangedChase::Execute(Agent* agent)
 //        }
 //    }
 //}
+
+
+// Ranged Adjust
+RangedAdjust::RangedAdjust(Agent* target)
+	:m_losParam(target)
+{
+}
+
+bool RangedAdjust::Execute(Agent* agent)
+{
+	std::vector<Node*> betterPath = BestTarget(agent, &m_losParam);
+	if (betterPath.empty())
+	{
+		agent->StopMovement();
+	}
+	else
+	{
+		agent->FollowPath(betterPath);
+	}
+
+	return true;
+}
+
 
 
 // Ranged Attack
@@ -139,7 +168,14 @@ Flee::Flee(Agent* agent)
 bool Flee::Execute(Agent* agent)
 {
 	std::vector<Node*> path = BestTarget(agent, &m_fleeParam);
-	agent->FollowPath(path);
+	if (path.empty())
+	{
+		agent->StopMovement();
+	}
+	else
+	{
+		agent->FollowPath(path);
+	}
 
 	return true;
 }
@@ -186,7 +222,6 @@ bool Attack::Execute(Agent* agent)
 // Player Attack
 bool PlayerAttack::Execute(Agent* agent)
 {
-	std::cout << "PLAYER ATTACK" << std::endl;
 	// Check each tile next to the player
     std::vector<Edge> neighbours = agent->GetCurrentNode()->m_connections;
     for (int i = 0; i < neighbours.size(); i++)
@@ -204,8 +239,6 @@ bool PlayerAttack::Execute(Agent* agent)
 // Player Move
 bool PlayerMove::Execute(Agent* agent)
 {
-	std::cout << "PLAYER MOVE" << std::endl;
-
 	Vector2 mousePos = GetMousePosition();
 	Node* target = agent->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
 	

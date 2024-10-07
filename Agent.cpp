@@ -97,7 +97,7 @@ void Agent::FollowPath(std::vector<Node*> path)
 	int furthestIndex = 0;
 
 	// Repeat for each node in range that doesn't have another agent already in it
-	for (int i = 0; i < path.size() && path[i]->m_gScore < GetMaxMoveScaled(); i++)
+	for (int i = 0; i < path.size() && path[i]->m_gScore <= (m_movesLeft * m_map->GetTileSize()); i++)
 	{
 		// If the node is occupied, don't set it as the furthest node, but continue the loop (means agents can pass through an occupied node on their path,
 		// but will never try to stop at an occupied node)
