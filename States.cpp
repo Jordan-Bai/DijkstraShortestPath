@@ -47,8 +47,13 @@ void Player::Update(Agent* agent, float deltaTime)
         Vector2 mousePos = GetMousePosition();
         Node* target = agent->GetMap()->GetNearestNode(mousePos.x, mousePos.y);
 
+        // If the target is a nullpointer, return
+        if (!target)
+        {
+            return;
+        }
         // If the target has an occupant that isn't this agent, it's an invalid target
-        if (target->m_occupant && target->m_occupant != agent)
+        else if (target->m_occupant && target->m_occupant != agent)
         {
             return;
         }
