@@ -59,3 +59,27 @@ class FinishTurn : public Behaviour
 public:
 	bool Execute(Agent* agent) override;
 };
+
+class Attack : public Behaviour
+{
+	Agent* m_target;
+
+public:
+	Attack(Agent* target);
+
+	bool Execute(Agent* agent) override;
+};
+
+class PlayerAttack : public Behaviour
+{
+	Agent* m_target;
+
+public:
+	bool Execute(Agent* agent) override;
+};
+
+class PlayerMove : public Behaviour
+{
+public:
+	bool Execute(Agent* agent) override;
+};

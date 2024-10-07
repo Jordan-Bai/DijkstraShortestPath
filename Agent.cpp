@@ -5,7 +5,7 @@ Agent::Agent(NodeMap* map, Behaviour* behaviour)
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;
-	m_behaviour->Enter(this);
+	//m_behaviour->Enter(this);
 }
 
 void Agent::SetSpeed(float speed)
@@ -221,7 +221,7 @@ void Agent::Update(float deltaTime)
 	// Update the state (if there is one)
 	if (m_behaviour)
 	{
-		m_behaviour->Update(this, deltaTime);
+		m_behaviour->Execute(this);
 	}
 
 	// Move the agent

@@ -106,3 +106,50 @@ bool HasLineOfSight::Execute(Agent* agent)
 	return hasLOS != m_doInverse;
 }
 
+
+IsMoving::IsMoving(bool doInverse)
+{
+	m_doInverse = doInverse;
+}
+
+bool IsMoving::Execute(Agent* agent)
+{
+	bool onPath = !agent->PathComplete(); // If the path is complete, the agent isn't moving
+	return onPath != m_doInverse;
+}
+
+
+CanMove::CanMove(bool doInverse)
+{
+	m_doInverse = doInverse;
+}
+
+bool CanMove::Execute(Agent* agent)
+{
+	bool canMove = (agent->GetMovesLeft() > 0);
+	return canMove != m_doInverse;
+}
+
+
+A_KeyPressed::A_KeyPressed(bool doInverse)
+{
+	m_doInverse = doInverse;
+}
+
+bool A_KeyPressed::Execute(Agent* agent)
+{
+	bool keyPressed = IsKeyPressed(KEY_X);
+	return keyPressed != m_doInverse;
+}
+
+
+A_MousePressed::A_MousePressed(bool doInverse)
+{
+	m_doInverse = doInverse;
+}
+
+bool A_MousePressed::Execute(Agent* agent)
+{
+	bool buttonPressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+	return buttonPressed != m_doInverse;
+}

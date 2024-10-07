@@ -41,3 +41,39 @@ public:
 
 	bool Execute(Agent* agent) override;
 };
+
+class IsMoving : public Condition
+{
+public:
+	IsMoving(bool doInverse);
+
+	bool Execute(Agent* agent) override;
+};
+
+class CanMove : public Condition
+{
+public:
+	CanMove(bool doInverse);
+
+	bool Execute(Agent* agent) override;
+};
+
+class A_KeyPressed : public Condition
+{
+	//KeyboardKey m_key;
+
+public:
+	A_KeyPressed(bool doInverse);
+
+	bool Execute(Agent* agent) override;
+};
+
+class A_MousePressed : public Condition
+{
+	//MouseButton m_button;
+
+public:
+	A_MousePressed(bool doInverse);
+
+	bool Execute(Agent* agent) override;
+};

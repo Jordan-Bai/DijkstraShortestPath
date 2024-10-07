@@ -3,13 +3,13 @@
 #include "Pathfinder.h"
 
 
-class Behaviour // Abstract base class for states & fsm (so an agent can take a single state OR an fsm as its behaviour);
+class Behaviour // Abstract base class for behaviour trees
 {
 public:
 	virtual bool Execute(Agent* agent) = 0;
 };
 
-class Composite : public Behaviour // Abstract base call for composite behaviours
+class Composite : public Behaviour // Abstract base class for composite behaviours
 {
 protected:
 	std::vector<Behaviour*> m_children;
