@@ -206,7 +206,7 @@ bool LineOfSightParam::ValidTarget(Node* node)
 std::vector<Node*> BestTarget(Agent* agent, SearchParam* param)
 {
 	Node* startNode = agent->GetCurrentNode();
-	float movesLeftScaled = agent->GetMovesLeft() * agent->GetMap()->GetTileSize();
+	float movesLeftScaled = agent->GetMovesLeftScaled();
 
 	if (startNode == nullptr || param == nullptr)
 	{

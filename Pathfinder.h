@@ -78,6 +78,7 @@ class NodeMap
 
 public:
 	NodeMap() = default;
+	// Nodemap doesn't need to be copied, so don't let things use a copy constructor, as that could break things upon destruction
 	NodeMap(const NodeMap& other) = delete;
 	~NodeMap();
 
@@ -94,7 +95,7 @@ public:
 
 	void Draw();
 
-	NodeMap* operator=(const NodeMap& other) = delete;
+	NodeMap* operator=(const NodeMap& other) = delete; // Same as copy constructor
 };
 
 inline bool greaterComp(const Node* node1, const Node* node2) // Need to use this as the comparison because otherwise we couldn't compare pointers

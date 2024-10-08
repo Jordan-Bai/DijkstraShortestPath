@@ -3,22 +3,26 @@
 #include "States.h"
 #include "SearchParameters.h"
 
+class PlayerMove : public Behaviour
+{
+public:
+	bool Execute(Agent* agent) override;
+};
+
+class PlayerAttack : public Behaviour
+{
+	Agent* m_target;
+
+public:
+	bool Execute(Agent* agent) override;
+};
+
 class MeleeChase : public Behaviour
 {
 	Agent* m_target;
 
 public:
 	MeleeChase(Agent* target);
-
-	bool Execute(Agent* agent) override;
-};
-
-class MeleeAttack : public Behaviour
-{
-	Agent* m_target;
-	
-public:
-	MeleeAttack(Agent* target);
 
 	bool Execute(Agent* agent) override;
 };
@@ -43,13 +47,12 @@ public:
 	bool Execute(Agent* agent) override;
 };
 
-class RangedAttack : public Behaviour
+class Attack : public Behaviour
 {
 	Agent* m_target;
-	LineOfSightParam m_losParam;
 
 public:
-	RangedAttack(Agent* target);
+	Attack(Agent* target);
 
 	bool Execute(Agent* agent) override;
 };
@@ -65,30 +68,6 @@ public:
 };
 
 class FinishTurn : public Behaviour
-{
-public:
-	bool Execute(Agent* agent) override;
-};
-
-class Attack : public Behaviour
-{
-	Agent* m_target;
-
-public:
-	Attack(Agent* target);
-
-	bool Execute(Agent* agent) override;
-};
-
-class PlayerAttack : public Behaviour
-{
-	Agent* m_target;
-
-public:
-	bool Execute(Agent* agent) override;
-};
-
-class PlayerMove : public Behaviour
 {
 public:
 	bool Execute(Agent* agent) override;

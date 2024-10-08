@@ -3,36 +3,31 @@
 #include "Agent.h" // Need to include this so agent is properly defined and not just declared
 
 
-CloserThan::CloserThan(Agent* target, float distance, bool doInverse)
+CloserThan::CloserThan(Agent* target, float distance)
 	: m_target(target), m_distance(distance* target->GetMap()->GetTileSize())
 {
-	m_doInverse = doInverse;
 }
 
 bool CloserThan::Execute(Agent* agent)
 {
-	bool lessThan = glm::distance(agent->GetPosition(), m_target->GetPosition()) < m_distance;
-	return lessThan != m_doInverse;
+	return glm::distance(agent->GetPosition(), m_target->GetPosition()) < m_distance;
 }
 
 
-LowHealth::LowHealth(int hpThreshold, bool doInverse)
+LowHealth::LowHealth(int hpThreshold)
 	: m_hpThreshold(hpThreshold)
 {
-	m_doInverse = doInverse;
 }
 
 bool LowHealth::Execute(Agent* agent)
 {
-	bool lessThan = (agent->GetHealth() < m_hpThreshold);
-	return lessThan != m_doInverse;
+	return agent->GetHealth() < m_hpThreshold;
 }
 
 
-HasLineOfSight::HasLineOfSight(Agent* target, bool doInverse)
+HasLineOfSight::HasLineOfSight(Agent* target)
 	: m_target(target)
 {
-	m_doInverse = doInverse;
 }
 
 bool HasLineOfSight::Execute(Agent* agent)
@@ -103,53 +98,53 @@ bool HasLineOfSight::Execute(Agent* agent)
 	{
 		hasLOS = false;
 	}
-	return hasLOS != m_doInverse;
+	return hasLOS;
 }
 
-
-IsMoving::IsMoving(bool doInverse)
-{
-	m_doInverse = doInverse;
-}
 
 bool IsMoving::Execute(Agent* agent)
 {
-	bool onPath = !agent->PathComplete(); // If the path is complete, the agent isn't moving
-	return onPath != m_doInverse;
+	return !agent->PathComplete(); // If the path is complete, the agent isn't moving
 }
 
-
-CanMove::CanMove(bool doInverse)
-{
-	m_doInverse = doInverse;
-}
 
 bool CanMove::Execute(Agent* agent)
 {
-	bool canMove = (agent->GetMovesLeft() > 0);
-	return canMove != m_doInverse;
+	// If the agent has movement left (doesn't automatically mean they can move, as the adjacent tiles could cost too much)
+	if (agent->GetMovesLeft() > 0)
+	{
+		// Check each tile next to the agent
+		std::vector<Edge> neighbours = agent->GetCurrentNode()->m_connections;
+		for (Edge e : agent->GetCurrentNode()->m_connections)
+		{
+			if (e.m_cost <= agent->GetMovesLeftScaled()) //  If one of the adjacent tiles can be moved to
+			{
+				return true;
+			}
+		}
+	}
+
+	return false; // Otherwise, return false
 }
 
 
-A_KeyPressed::A_KeyPressed(bool doInverse)
+KeyPressed::KeyPressed(KeyboardKey key)
+	:m_key(key)
 {
-	m_doInverse = doInverse;
 }
 
-bool A_KeyPressed::Execute(Agent* agent)
+bool KeyPressed::Execute(Agent* agent)
 {
-	bool keyPressed = IsKeyPressed(KEY_X);
-	return keyPressed != m_doInverse;
+	return IsKeyPressed(m_key);
 }
 
 
-A_MousePressed::A_MousePressed(bool doInverse)
+MousePressed::MousePressed(MouseButton button)
+	:m_button(button)
 {
-	m_doInverse = doInverse;
 }
 
-bool A_MousePressed::Execute(Agent* agent)
+bool MousePressed::Execute(Agent* agent)
 {
-	bool buttonPressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-	return buttonPressed != m_doInverse;
+	return IsMouseButtonPressed(m_button);
 }

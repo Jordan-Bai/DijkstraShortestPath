@@ -53,21 +53,21 @@ int main() {
 
     // Create Actions & Conditions
     //-----------------------------------------------------------------------------------------------------
-    CloserThan inRange(&myPlayer, 1.25f, false);
-    LowHealth lowHP(2, false);
-    HasLineOfSight hasLOS(&myPlayer, false);
-    IsMoving isMoving(false);
-    CanMove canMove(false);
-    A_KeyPressed xPressed(false);
-    A_MousePressed leftClick(false);
+    CloserThan inRange(&myPlayer, 1.25f);
+    LowHealth lowHP(2);
+    HasLineOfSight hasLOS(&myPlayer);
+    IsMoving isMoving;
+    CanMove canMove;
+    KeyPressed xPressed(KEY_X);
+    MousePressed leftClick(MOUSE_BUTTON_LEFT);
 
-    MeleeChase mChase(&myPlayer);
-    Attack eAttack(&myPlayer);
-    Flee eFlee(&myPlayer);
-    RangedChase rChase(&myPlayer);
-    RangedAdjust adjust(&myPlayer);
     PlayerMove pMove;
     PlayerAttack pAttack;
+    MeleeChase mChase(&myPlayer);
+    RangedChase rChase(&myPlayer);
+    RangedAdjust readjust(&myPlayer);
+    Attack eAttack(&myPlayer);
+    Flee eFlee(&myPlayer);
     FinishTurn endTurn;
     //-----------------------------------------------------------------------------------------------------
 
@@ -94,13 +94,9 @@ int main() {
     B_MeleeAttack.AddChild(&eAttack);
     B_MeleeAttack.AddChild(&endTurn);
 
-    Sequence B_MStartChasing;
-    B_MStartChasing.AddChild(&canMove);
-    B_MStartChasing.AddChild(&mChase);
-
-    Selector B_MeleeMove;
-    B_MeleeMove.AddChild(&B_MStartChasing);
-    B_MeleeMove.AddChild(&endTurn);
+    Sequence B_MeleeMove;
+    B_MeleeMove.AddChild(&canMove);
+    B_MeleeMove.AddChild(&mChase);
 
     // Fleeing
     Sequence B_StartFleeing;
@@ -111,14 +107,14 @@ int main() {
     B_FleeMove.AddChild(&B_StartFleeing);
     B_FleeMove.AddChild(&endTurn);
 
-    Sequence B_Flee;
-    B_Flee.AddChild(&lowHP);
-    B_Flee.AddChild(&B_FleeMove);
+    Sequence B_FleeMode;
+    B_FleeMode.AddChild(&lowHP);
+    B_FleeMode.AddChild(&B_FleeMove);
 
     // Ranged Enemies
     Sequence B_Readjust;
     B_Readjust.AddChild(&canMove);
-    B_Readjust.AddChild(&adjust);
+    B_Readjust.AddChild(&readjust);
 
     Sequence B_RangedAttack;
     B_RangedAttack.AddChild(&eAttack);
@@ -132,26 +128,19 @@ int main() {
     B_LOSMode.AddChild(&hasLOS);
     B_LOSMode.AddChild(&B_MoveAndShoot);
 
-    Sequence B_RStartChasing;
-    B_RStartChasing.AddChild(&canMove);
-    B_RStartChasing.AddChild(&rChase);
-
-    Selector B_RangedChase;
-    B_RangedChase.AddChild(&B_RStartChasing);
-    B_RangedChase.AddChild(&endTurn);
+    Sequence B_RangedMove;
+    B_RangedMove.AddChild(&canMove);
+    B_RangedMove.AddChild(&rChase);
 
     // Melee & Ranged Enemies
     Selector B_RangedMode;
     B_RangedMode.AddChild(&B_LOSMode);
-    B_RangedMode.AddChild(&B_RangedChase);
+    B_RangedMode.AddChild(&B_RangedMove);
+    B_RangedMode.AddChild(&endTurn);
 
     Sequence B_DoRanged;
     B_DoRanged.AddChild(&lowHP);
     B_DoRanged.AddChild(&B_RangedMode);
-
-    Selector B_MeleeMode;
-    B_MeleeMode.AddChild(&B_MeleeAttack);
-    B_MeleeMode.AddChild(&B_MeleeMove);
     //-----------------------------------------------------------------------------------------------------
 
     // Create melee enemies
@@ -160,24 +149,26 @@ int main() {
     MeleeEnemy1.AddChild(&isMoving);
     MeleeEnemy1.AddChild(&B_MeleeAttack);
     MeleeEnemy1.AddChild(&B_MeleeMove);
+    MeleeEnemy1.AddChild(&endTurn);
 
     Agent enemy1(&map, &MeleeEnemy1); // Will only ever attack, never flee
     enemy1.SetNode(map.GetNode(1, 13));
     enemy1.SetSpeed(512);
-    enemy1.SetColour({ 255, 0, 0, 255 });
+    enemy1.SetColour({ 255, 0, 0, 255 }); // Red
     enemy1.SetMaxMove(6);
     enemy1.SetHealth(3);
 
     Selector MeleeEnemy2;
     MeleeEnemy2.AddChild(&isMoving);
-    MeleeEnemy2.AddChild(&B_Flee);
+    MeleeEnemy2.AddChild(&B_FleeMode);
     MeleeEnemy2.AddChild(&B_MeleeAttack);
     MeleeEnemy2.AddChild(&B_MeleeMove);
+    MeleeEnemy2.AddChild(&endTurn);
 
     Agent enemy2(&map, &MeleeEnemy2); // Will flee if health is low
     enemy2.SetNode(map.GetNode(16, 1));
     enemy2.SetSpeed(512);
-    enemy2.SetColour({ 255, 128, 0, 255 });
+    enemy2.SetColour({ 255, 128, 0, 255 }); // Orange
     enemy2.SetMaxMove(6);
     enemy2.SetHealth(3);
     //-----------------------------------------------------------------------------------------------------
@@ -187,12 +178,13 @@ int main() {
     Selector RangedEnemy;
     RangedEnemy.AddChild(&isMoving);
     RangedEnemy.AddChild(&B_LOSMode);
-    RangedEnemy.AddChild(&B_RangedChase);
+    RangedEnemy.AddChild(&B_RangedMove);
+    RangedEnemy.AddChild(&endTurn);
     
     Agent enemy3(&map, &RangedEnemy);
     enemy3.SetNode(map.GetNode(16, 13));
     enemy3.SetSpeed(512);
-    enemy3.SetColour({ 0, 0, 255, 255 });
+    enemy3.SetColour({ 0, 0, 255, 255 }); // Blue
     enemy3.SetMaxMove(6);
     enemy3.SetHealth(3);
     //-----------------------------------------------------------------------------------------------------
@@ -202,13 +194,16 @@ int main() {
     Selector MeleeRangedEnemy;
     MeleeRangedEnemy.AddChild(&isMoving);
     MeleeRangedEnemy.AddChild(&B_DoRanged);
-    MeleeRangedEnemy.AddChild(&B_MeleeMode);
+    MeleeRangedEnemy.AddChild(&B_MeleeAttack);
+    MeleeRangedEnemy.AddChild(&B_MeleeMove);
+    MeleeRangedEnemy.AddChild(&endTurn);
+
     Agent enemy4(&map, &MeleeRangedEnemy);
     enemy4.SetNode(map.GetNode(8, 10));
     enemy4.SetSpeed(512);
-    enemy4.SetColour({ 0, 255, 0, 255 });
+    enemy4.SetColour({ 0, 255, 0, 255 }); // Green
     enemy4.SetMaxMove(6);
-    enemy4.SetHealth(1);
+    enemy4.SetHealth(3);
     //-----------------------------------------------------------------------------------------------------
 
 

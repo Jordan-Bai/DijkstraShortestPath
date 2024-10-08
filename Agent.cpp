@@ -5,7 +5,6 @@ Agent::Agent(NodeMap* map, Behaviour* behaviour)
 {
 	PathAgent pathAgent;
 	m_pathAgent = pathAgent;
-	//m_behaviour->Enter(this);
 }
 
 void Agent::SetSpeed(float speed)
@@ -86,7 +85,7 @@ void Agent::FollowPath(std::vector<Node*> path)
 {
 	if (path.empty()) // If the path is empty, ignore it
 	{
-		m_pathAgent.GetCurrentNode()->m_occupant = this;
+		StopMovement(); // To stop agent from repeatedly being asked to follow an empty path
 		return;
 	}
 
@@ -112,6 +111,7 @@ void Agent::FollowPath(std::vector<Node*> path)
 	if (path.size() <= 1) // If there are no nodes/ only the starting node, return
 	{
 		m_pathAgent.GetCurrentNode()->m_occupant = this;
+		StopMovement(); // To stop agent from repeatedly being asked to follow an impossible path
 		return;
 	}
 
@@ -202,6 +202,11 @@ int Agent::GetMaxMoveScaled() const
 int Agent::GetMovesLeft() const
 {
 	return m_movesLeft;
+}
+
+int Agent::GetMovesLeftScaled() const
+{
+	return m_movesLeft * m_map->GetTileSize();
 }
 
 

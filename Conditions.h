@@ -1,79 +1,67 @@
 #pragma once
 
 #include "States.h"
+#include "raylib.h"
 
-class Agent; // Need to declare agent here, so condition & agent can reference each other
-// (agent includes state which includes transition which includes condition so we can't just include the agent header)
-
-class Condition : public Behaviour // Abstract base class for all conditions
-{
-protected:
-	bool m_doInverse; // If true, return the opposite of what it would normally return
-};
-
-class CloserThan : public Condition
+class CloserThan : public Behaviour
 {
 	Agent* m_target; // The target whose distance we're finding
 	float m_distance; // The distance being compared against
 
 public:
-	CloserThan(Agent* target, float distance, bool doInverse);
+	CloserThan(Agent* target, float distance);
 
 	bool Execute(Agent* agent) override;
 };
 
-class LowHealth : public Condition
+class LowHealth : public Behaviour
 {
 	int m_hpThreshold; // The HP value being compared against
 
 public:
-	LowHealth(int hpThreshold, bool doInverse);
+	LowHealth(int hpThreshold);
 
 	bool Execute(Agent* agent) override;
 };
 
-class HasLineOfSight : public Condition
+class HasLineOfSight : public Behaviour
 {
 	Agent* m_target; // The target whose distance we're finding
 
 public:
-	HasLineOfSight(Agent* target, bool doInverse);
+	HasLineOfSight(Agent* target);
 
 	bool Execute(Agent* agent) override;
 };
 
-class IsMoving : public Condition
+class IsMoving : public Behaviour
 {
 public:
-	IsMoving(bool doInverse);
+	bool Execute(Agent* agent) override;
+};
+
+class CanMove : public Behaviour
+{
+public:
+	bool Execute(Agent* agent) override;
+};
+
+class KeyPressed : public Behaviour
+{
+	KeyboardKey m_key;
+
+public:
+	KeyPressed(KeyboardKey key);
 
 	bool Execute(Agent* agent) override;
 };
 
-class CanMove : public Condition
+class MousePressed : public Behaviour
 {
-public:
-	CanMove(bool doInverse);
-
-	bool Execute(Agent* agent) override;
-};
-
-class A_KeyPressed : public Condition
-{
-	//KeyboardKey m_key;
+	MouseButton m_button;
 
 public:
-	A_KeyPressed(bool doInverse);
-
-	bool Execute(Agent* agent) override;
-};
-
-class A_MousePressed : public Condition
-{
-	//MouseButton m_button;
-
-public:
-	A_MousePressed(bool doInverse);
+	MousePressed(MouseButton button);
 
 	bool Execute(Agent* agent) override;
 };

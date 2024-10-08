@@ -167,7 +167,7 @@ void TurnController::Draw()
 			{
 				// Draw the path to the node
 				Color tileColour = { 0, 0, 0, 64 };
-				float movesLeftScaled = m_player->GetMovesLeft() * m_player->GetMap()->GetTileSize(); // For checking if the tile is in range
+				float movesLeftScaled = m_player->GetMovesLeftScaled(); // For checking if the tile is in range
 				for (int i = 0; i < m_hoveredPath.size(); i++)
 				{
 					if (m_hoveredPath[i]->m_gScore > movesLeftScaled) // If the tile is out of the player's max move distance

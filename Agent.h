@@ -52,6 +52,7 @@ public:
 	int GetMaxMove() const;
 	int GetMaxMoveScaled() const;
 	int GetMovesLeft() const;
+	int GetMovesLeftScaled() const;
 
 	int GetHealth() const;
 	int GetAttack() const;
